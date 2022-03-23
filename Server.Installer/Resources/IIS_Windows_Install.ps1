@@ -2,7 +2,7 @@
 .SYNOPSIS
    Configures IIS and installs the nex-Remote Server.
 .COPYRIGHT
-   Copyright ©  2020 Translucency Software.  All rights reserved.
+   Copyright ©  2022 nex-IT Uslugi Informatyczne Jakub Potoczny.  All rights reserved.
 #>
 param (
     # The host name (excluding scheme) for the server that will run nex-Remote.

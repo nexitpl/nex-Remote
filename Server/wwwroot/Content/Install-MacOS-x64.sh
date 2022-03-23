@@ -99,4 +99,4 @@ plistFile="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 echo "$plistFile" > "/Library/LaunchDaemons/nex-Remote-agent.plist"
 
 launchctl load -w /Library/LaunchDaemons/nex-Remote-agent.plist
-launchctl kickstart -k system/com.translucency.nex-Remote-agent
+launchctl kickstart -k system/com.nexit.nex-Remote-agent

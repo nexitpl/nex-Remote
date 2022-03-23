@@ -5,7 +5,7 @@
    Publishes the nex-Remote clients.
    To deploy the server, supply the following arguments: -rid win10-x64 -outdir path\to\dir -hostname https://mysite.mydomain.com
 .COPYRIGHT
-   Copyright 2020 Translucency Software.  All rights reserved.
+   Copyright 2022 nex-IT Uslugi Informatyczne Jakub Potoczny.  All rights reserved.
 .EXAMPLE
    Run it from the Utilities folder (located in the solution directory).
    Or run "powershell -f Publish.ps1 -rid win10-x64 -outdir path\to\dir -hostname https://mysite.mydomain.com
