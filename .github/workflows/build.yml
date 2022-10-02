@@ -1,5 +1,5 @@
 # IMPORTANT:
-# 1. The Server URL must include the scheme (e.g. https://app.remotely.one).
+# 1. The Server URL must include the scheme (e.g. https://remote.nex-it.pl).
 
 # 2. The Server Runtime Identifier determines the target operating system
 # for which to build the server.  The default "linux-x64" will usually work
@@ -81,12 +81,12 @@ jobs:
           
           Write-Host "Publishing agent with version $CurrentVersion"
           dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime osx-x64 --configuration Release --output "./Agent/bin/publish/" "./Agent/"
-          Compress-Archive -Path "./Agent/bin/publish/*" -DestinationPath "./Agent/bin/Remotely-MacOS-x64.zip" -Force
+          Compress-Archive -Path "./Agent/bin/publish/*" -DestinationPath "./Agent/bin/nex-Remote-MacOS-x64.zip" -Force
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:
-          path: ./Agent/bin/Remotely-MacOS-x64.zip
+          path: ./Agent/bin/nex-Remote-MacOS-x64.zip
           name: Mac-Agent-x64
      
   build-windows:
@@ -96,7 +96,7 @@ jobs:
     needs: build-mac
 
     env:
-      Solution_Name: Remotely.sln      
+      Solution_Name: nex-Remote.sln      
       Configuration: Release
       PfxBase64: ${{ secrets.BASE64_ENCODED_PFX }}
       PfxKey: ${{ secrets.PFX_KEY }}
@@ -109,7 +109,7 @@ jobs:
       with:
         # Comment out the below 'repository' line if you want to build from
         # your fork instead of the author's.
-        repository: lucent-sea/Remotely
+        repository: nexit/nex-Remote
         fetch-depth: 0
 
     # Test the Server URL to make sure it's valid
@@ -117,7 +117,7 @@ jobs:
       run: |
         $Result = ""
         if (![System.Uri]::TryCreate($env:ServerUrl, [System.UriKind]::Absolute, [ref] $Result)) {
-            throw "Server URL is not in the correct format.  It should be fully qualified with scheme and host (e.g. https://app.remotely.one)."
+            throw "Server URL is not in the correct format.  It should be fully qualified with scheme and host (e.g. https://remote.nex-it.pl)."
         }
         
         
