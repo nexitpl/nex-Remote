@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using SkiaSharp;
 
 namespace nexRemote.Desktop.Core.Services
 {
@@ -41,20 +42,15 @@ namespace nexRemote.Desktop.Core.Services
             _shutdownService = shutdownService;
         }
 
-
         public void BeginScreenCasting(ScreenCastRequest screenCastRequest)
         {
-            _ = Task.Run(async () => await CastScreen(screenCastRequest));
+            _ = Task.Run(() => BeginScreenCastingImpl(screenCastRequest));
         }
 
-        private async Task CastScreen(ScreenCastRequest screenCastRequest)
+        private async Task BeginScreenCastingImpl(ScreenCastRequest screenCastRequest)
         {
             try
             {
-                Bitmap currentFrame = null;
-                Bitmap previousFrame = null;
-                long sequence = 0;
-
                 var viewer = ServiceContainer.Instance.GetRequiredService<Viewer>();
                 viewer.Name = screenCastRequest.RequesterName;
                 viewer.ViewerConnectionID = screenCastRequest.ViewerID;
@@ -84,8 +80,6 @@ namespace nexRemote.Desktop.Core.Services
                     screenBounds.Width,
                     screenBounds.Height);
 
-                await viewer.SendScreenSize(screenBounds.Width, screenBounds.Height);
-
                 await viewer.SendCursorChange(_cursorIconWatcher.GetCurrentCursor());
 
                 await viewer.SendWindowsSessions();
@@ -95,20 +89,19 @@ namespace nexRemote.Desktop.Core.Services
                     await viewer.SendScreenSize(bounds.Width, bounds.Height);
                 };
 
-                using (var initialFrame = viewer.Capturer.GetNextFrame())
+                // This gets disposed internally in the Capturer on the next call.
+                var result = viewer.Capturer.GetNextFrame();
+
+                if (result.IsSuccess && result.Value is not null)
                 {
-                    if (initialFrame != null)
+                    await viewer.SendScreenCapture(new CaptureFrame()
                     {
-                        await viewer.SendScreenCapture(new CaptureFrame()
-                        {
-                            EncodedImageBytes = ImageUtils.EncodeJpeg(initialFrame),
-                            Left = screenBounds.Left,
-                            Top = screenBounds.Top,
-                            Width = screenBounds.Width,
-                            Height = screenBounds.Height,
-                            Sequence = sequence++
-                        });
-                    }
+                        EncodedImageBytes = ImageUtils.EncodeBitmap(result.Value, SKEncodedImageFormat.Jpeg, viewer.ImageQuality),
+                        Left = screenBounds.Left,
+                        Top = screenBounds.Top,
+                        Width = screenBounds.Width,
+                        Height = screenBounds.Height
+                    });
                 }
 
 
@@ -118,8 +111,26 @@ namespace nexRemote.Desktop.Core.Services
                 }
 
                 // Wait until the first image is received.
-                TaskHelper.DelayUntil(() => !viewer.PendingSentFrames.Any(), TimeSpan.MaxValue);
+                if (!TaskHelper.DelayUntil(() => !viewer.PendingSentFrames.Any(), TimeSpan.FromSeconds(30)))
+                {
+                    Logger.Write("Timed out while waiting for first frame receipt.");
+                    _conductor.Viewers.TryRemove(viewer.ViewerConnectionID, out _);
+                    viewer.Dispose();
+                    return;
+                }
 
+                _ = Task.Run(() => CastScreen(screenCastRequest, viewer, 0));
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(ex);
+            }
+        }
+
+        private async Task CastScreen(ScreenCastRequest screenCastRequest, Viewer viewer, int sequence)
+        {
+            try
+            {
                 while (!viewer.DisconnectRequested && viewer.IsConnected)
                 {
                     try
@@ -141,21 +152,15 @@ namespace nexRemote.Desktop.Core.Services
 
                         viewer.ApplyAutoQuality();
 
-                        if (currentFrame != null)
+                        var result = viewer.Capturer.GetNextFrame();
+
+                        if (!result.IsSuccess || result.Value is null)
                         {
-                            previousFrame?.Dispose();
-                            previousFrame = (Bitmap)currentFrame.Clone();
+                            _ = Task.Run(() => CastScreen(screenCastRequest, viewer, sequence));
+                            return;
                         }
 
-                        currentFrame?.Dispose();
-                        currentFrame = viewer.Capturer.GetNextFrame();
-
-                        if (currentFrame is null)
-                        {
-                            continue;
-                        }
-
-                        var diffArea = ImageUtils.GetDiffArea(currentFrame, previousFrame, viewer.Capturer.CaptureFullscreen);
+                        var diffArea = viewer.Capturer.GetFrameDiffArea();
 
                         if (diffArea.IsEmpty)
                         {
@@ -164,18 +169,10 @@ namespace nexRemote.Desktop.Core.Services
 
                         viewer.Capturer.CaptureFullscreen = false;
 
-                        using var croppedFrame = currentFrame.Clone(diffArea, currentFrame.PixelFormat);
+                        using var croppedFrame = ImageUtils.CropBitmap(result.Value, diffArea);
 
-                        byte[] encodedImageBytes;
+                        var encodedImageBytes = ImageUtils.EncodeBitmap(croppedFrame, SKEncodedImageFormat.Jpeg, viewer.ImageQuality);
 
-                        if (viewer.ImageQuality == Viewer.DefaultQuality)
-                        {
-                            encodedImageBytes = ImageUtils.EncodeJpeg(croppedFrame);
-                        }
-                        else
-                        {
-                            encodedImageBytes = ImageUtils.EncodeJpeg(croppedFrame, viewer.ImageQuality);
-                        }
 
                         await SendFrame(encodedImageBytes, diffArea, sequence++, viewer);
 
@@ -211,7 +208,7 @@ namespace nexRemote.Desktop.Core.Services
             }
         }
 
-        private static async Task SendFrame(byte[] encodedImageBytes, Rectangle diffArea, long sequence, Viewer viewer)
+        private static async Task SendFrame(byte[] encodedImageBytes, SKRect diffArea, long sequence, Viewer viewer)
         {
             if (encodedImageBytes.Length == 0)
             {
@@ -221,10 +218,10 @@ namespace nexRemote.Desktop.Core.Services
             await viewer.SendScreenCapture(new CaptureFrame()
             {
                 EncodedImageBytes = encodedImageBytes,
-                Top = diffArea.Top,
-                Left = diffArea.Left,
-                Width = diffArea.Width,
-                Height = diffArea.Height,
+                Top = (int)diffArea.Top,
+                Left = (int)diffArea.Left,
+                Width = (int)diffArea.Width,
+                Height = (int)diffArea.Height,
                 Sequence = sequence
             });
         }

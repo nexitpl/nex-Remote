@@ -1,4 +1,6 @@
-﻿using System;
+﻿using nexRemote.Shared;
+using SkiaSharp;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -13,8 +15,11 @@ namespace nexRemote.Desktop.Core.Interfaces
         string SelectedScreen { get; }
 
         IEnumerable<string> GetDisplayNames();
+        SKRect GetFrameDiffArea();
 
-        Bitmap GetNextFrame();
+        Result<SKBitmap> GetImageDiff();
+
+        Result<SKBitmap> GetNextFrame();
 
         int GetScreenCount();
 

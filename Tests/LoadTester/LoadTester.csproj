@@ -3,8 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <AssemblyName>Remotely.Tests.LoadTester</AssemblyName>
-    <RootNamespace>Remotely.Tests.LoadTester</RootNamespace>
+    <AssemblyName>nex-Remote.Tests.LoadTester</AssemblyName>
+    <RootNamespace>nexRemote.Tests.LoadTester</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

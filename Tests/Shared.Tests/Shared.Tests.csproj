@@ -7,9 +7,9 @@
 
     <IsPackable>false</IsPackable>
 
-    <AssemblyName>Remotely.Shared.Tests</AssemblyName>
+    <AssemblyName>nex-Remote.Shared.Tests</AssemblyName>
 
-    <RootNamespace>Remotely.Shared.Tests</RootNamespace>
+    <RootNamespace>nexRemote.Shared.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -16,6 +16,7 @@
 		<AssemblyName>nex-Remote_Agent</AssemblyName>
 		<RootNamespace>nexRemote.Agent</RootNamespace>
 		<ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
+		<PlatformTarget>AnyCPU</PlatformTarget>
 	</PropertyGroup>
 
 	<ItemGroup>

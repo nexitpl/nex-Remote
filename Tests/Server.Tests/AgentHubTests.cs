@@ -7,7 +7,7 @@ using Moq;
 using nexRemote.Server.Hubs;
 using nexRemote.Server.Models;
 using nexRemote.Server.Services;
-using RemonexRemotetely.Shared.Models;
+using nexRemote.Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
