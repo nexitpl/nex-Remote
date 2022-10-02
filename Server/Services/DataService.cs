@@ -2,18 +2,18 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using nexRemote.Server.Data;
 using nexRemote.Server.Models;
+using nexRemote.Server.Services;
 using nexRemote.Shared.Enums;
 using nexRemote.Shared.Models;
 using nexRemote.Shared.Utilities;
 using nexRemote.Shared.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,6 +23,7 @@ namespace nexRemote.Server.Services
     public interface IDataService
     {
         Task AddAlert(string deviceID, string organizationID, string alertMessage, string details = null);
+
         bool AddDeviceGroup(string orgID, DeviceGroup deviceGroup, out string deviceGroupID, out string errorMessage);
 
         InviteLink AddInvite(string orgID, InviteViewModel invite);
@@ -34,6 +35,8 @@ namespace nexRemote.Server.Services
         void AddOrUpdateScriptResult(ScriptResult scriptResult);
 
         Task AddOrUpdateScriptSchedule(ScriptSchedule schedule);
+
+        Task AddScriptResultToScriptRun(string scriptResultId, int scriptRunId);
 
         Task AddScriptRun(ScriptRun scriptRun);
 
@@ -48,6 +51,7 @@ namespace nexRemote.Server.Services
         void CleanupOldRecords();
 
         Task ClearLogs(string currentUserName);
+
         Task<ApiToken> CreateApiToken(string userName, string tokenName, string secretHash);
 
         Task<Device> CreateDevice(DeviceSetupOptions options);
@@ -76,12 +80,12 @@ namespace nexRemote.Server.Services
 
         bool DoesUserExist(string userName);
 
-        bool DoesUserHaveAccessToDevice(string deviceID, nexRemoteUser nexRemoteUser);
+        bool DoesUserHaveAccessToDevice(string deviceID, nexRemoteUser nexremoteUser);
 
-        bool DoesUserHaveAccessToDevice(string deviceID, string nexRemoteUserID);
-        Task<DeviceGroup> GetDeviceGroup(string deviceGroupID);
-        string[] FilterDeviceIDsByUserPermission(string[] deviceIDs, nexRemoteUser nexRemoteUser);
-        Task AddScriptResultToScriptRun(string scriptResultId, int scriptRunId);
+        bool DoesUserHaveAccessToDevice(string deviceID, string nexremoteUserID);
+
+        string[] FilterDeviceIDsByUserPermission(string[] deviceIDs, nexRemoteUser nexremoteUser);
+
         string[] FilterUsersByDevicePermission(IEnumerable<string> userIDs, string deviceID);
 
         Task<Alert> GetAlert(string alertID);
@@ -124,6 +128,7 @@ namespace nexRemote.Server.Services
 
         int GetDeviceCount(nexRemoteUser user);
 
+        Task<DeviceGroup> GetDeviceGroup(string deviceGroupID);
         DeviceGroup[] GetDeviceGroups(string username);
 
         DeviceGroup[] GetDeviceGroupsForOrganization(string organizationId);
@@ -163,6 +168,7 @@ namespace nexRemote.Server.Services
         Task<List<ScriptSchedule>> GetScriptSchedules(string organizationID);
 
         Task<List<ScriptSchedule>> GetScriptSchedulesDue();
+
         List<string> GetServerAdmins();
 
         SharedFile GetSharedFiled(string fileID);
@@ -184,6 +190,7 @@ namespace nexRemote.Server.Services
         void RemoveDevices(string[] deviceIDs);
 
         Task<bool> RemoveUserFromDeviceGroup(string orgID, string groupID, string userID);
+
         Task RenameApiToken(string userName, string tokenId, string tokenName);
 
         Task ResetBranding(string organizationId);
@@ -202,43 +209,54 @@ namespace nexRemote.Server.Services
 
         Task UpdateBrandingInfo(
                                                                                                                                                                                                                                                     string organizationId,
-            string productName, 
+            string productName,
             byte[] iconBytes,
-            ColorPickerModel titleForeground, 
-            ColorPickerModel titleBackground, 
+            ColorPickerModel titleForeground,
+            ColorPickerModel titleBackground,
             ColorPickerModel titleButtonForeground);
+
         Task<Device> UpdateDevice(DeviceSetupOptions deviceOptions, string organizationId);
+
         void UpdateDevice(string deviceID, string tag, string alias, string deviceGroupID, string notes, WebRtcSetting webRtcSetting);
+
         void UpdateOrganizationName(string orgID, string organizationName);
+
         void UpdateTags(string deviceID, string tags);
+
         void UpdateUserOptions(string userName, nexRemoteUserOptions options);
+
         bool ValidateApiKey(string keyId, string apiSecret, string requestPath, string remoteIP);
+
         void WriteEvent(EventLog eventLog);
+
         void WriteEvent(Exception ex, string organizationID);
+
         void WriteEvent(string message, EventType eventType, string organizationID);
+
         void WriteEvent(string message, string organizationID);
+
         void WriteLog(LogLevel logLevel, string category, EventId eventId, string state, Exception exception, string[] scopeStack);
     }
 
     public class DataService : IDataService
     {
         private readonly IApplicationConfig _appConfig;
-
-        private readonly IDbContextFactory<AppDb> _dbFactory;
         private readonly IHostEnvironment _hostEnvironment;
+        private readonly IAppDbFactory _appDbFactory;
 
-        public DataService(IDbContextFactory<AppDb> dbFactory,
+        public DataService(
             IApplicationConfig appConfig,
-            IHostEnvironment hostEnvironment)
+            IHostEnvironment hostEnvironment,
+            IAppDbFactory appDbFactory)
         {
-            _dbFactory = dbFactory;
             _appConfig = appConfig;
             _hostEnvironment = hostEnvironment;
+            _appDbFactory = appDbFactory;
         }
 
         public async Task AddAlert(string deviceId, string organizationID, string alertMessage, string details = null)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var users = dbContext.Users
                .Include(x => x.Alerts)
@@ -272,7 +290,7 @@ namespace nexRemote.Server.Services
 
         public bool AddDeviceGroup(string orgID, DeviceGroup deviceGroup, out string deviceGroupID, out string errorMessage)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             deviceGroupID = null;
             errorMessage = null;
@@ -285,7 +303,7 @@ namespace nexRemote.Server.Services
                 x.OrganizationID == orgID &&
                 x.Name.ToLower() == deviceGroup.Name.ToLower()))
             {
-                errorMessage = "Grupa urządzeń już istnieje.";
+                errorMessage = "Device group already exists.";
                 return false;
             }
 
@@ -301,7 +319,7 @@ namespace nexRemote.Server.Services
 
         public InviteLink AddInvite(string orgID, InviteViewModel invite)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var organization = dbContext.Organizations
                 .Include(x => x.InviteLinks)
@@ -323,7 +341,7 @@ namespace nexRemote.Server.Services
 
         public bool AddOrUpdateDevice(Device device, out Device updatedDevice)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var existingDevice = dbContext.Devices.Find(device.ID);
             if (existingDevice != null)
@@ -364,8 +382,8 @@ namespace nexRemote.Server.Services
                     WriteEvent(new EventLog()
                     {
                         EventType = EventType.Info,
-                        Message = $"Nie można dodać urządzenia {device.DeviceName} ponieważ organizacja {device.OrganizationID}" +
-                            $"nie istnieje.  ID urządzenia: {device.ID}.",
+                        Message = $"Unable to add device {device.DeviceName} because organization {device.OrganizationID}" +
+                            $"does not exist.  Device ID: {device.ID}.",
                         Source = "DataService.AddOrUpdateDevice"
                     });
                     return false;
@@ -378,7 +396,7 @@ namespace nexRemote.Server.Services
 
         public async Task AddOrUpdateSavedScript(SavedScript script, string userId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             dbContext.SavedScripts.Update(script);
             script.CreatorId = userId;
@@ -389,7 +407,7 @@ namespace nexRemote.Server.Services
 
         public void AddOrUpdateScriptResult(ScriptResult result)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var device = dbContext.Devices.Find(result.DeviceID);
 
@@ -416,7 +434,7 @@ namespace nexRemote.Server.Services
 
         public async Task AddOrUpdateScriptSchedule(ScriptSchedule schedule)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var existingSchedule = await dbContext.ScriptSchedules
                 .Include(x => x.Creator)
@@ -459,7 +477,7 @@ namespace nexRemote.Server.Services
 
         public async Task AddScriptResultToScriptRun(string scriptResultId, int scriptRunId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var run = await dbContext.ScriptRuns
                 .Include(x => x.Results)
@@ -488,7 +506,7 @@ namespace nexRemote.Server.Services
 
         public async Task AddScriptRun(ScriptRun scriptRun)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             dbContext.Attach(scriptRun);
             dbContext.ScriptRuns.Add(scriptRun);
@@ -508,6 +526,8 @@ namespace nexRemote.Server.Services
                 progressCallback.Invoke((double)stream.Position / stream.Length, file.Name);
             }
 
+            progressCallback.Invoke(1, file.Name);
+
             return await AddSharedFileInternal(file.Name, fileContents, file.ContentType, organizationID);
         }
 
@@ -522,7 +542,7 @@ namespace nexRemote.Server.Services
 
         public bool AddUserToDeviceGroup(string orgID, string groupID, string userName, out string resultMessage)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             resultMessage = string.Empty;
 
@@ -534,7 +554,7 @@ namespace nexRemote.Server.Services
 
             if (deviceGroup == null)
             {
-                resultMessage = "Nie znaleziono grupy urządzenia.";
+                resultMessage = "Device group not found.";
                 return false;
             }
 
@@ -548,7 +568,7 @@ namespace nexRemote.Server.Services
 
             if (user == null)
             {
-                resultMessage = "Nie znaleziono użytkownika.";
+                resultMessage = "User not found.";
                 return false;
             }
 
@@ -557,7 +577,7 @@ namespace nexRemote.Server.Services
 
             if (deviceGroup.Users.Any(x => x.Id == user.Id))
             {
-                resultMessage = "Użytkownik już jest w grupie.";
+                resultMessage = "User already in group.";
                 return false;
             }
 
@@ -570,7 +590,7 @@ namespace nexRemote.Server.Services
 
         public void ChangeUserIsAdmin(string organizationID, string targetUserID, bool isAdmin)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var targetUser = dbContext.Users.FirstOrDefault(x =>
                                 x.OrganizationID == organizationID &&
@@ -585,17 +605,16 @@ namespace nexRemote.Server.Services
 
         public void CleanupOldRecords()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             if (_appConfig.DataRetentionInDays > -1)
             {
-
                 var expirationDate = DateTimeOffset.Now - TimeSpan.FromDays(_appConfig.DataRetentionInDays);
 
                 var scriptRuns = dbContext.ScriptRuns
-                    .Include(x=>x.Results)
-                    .Include(x=>x.Devices)
-                    .Include(x=>x.DevicesCompleted)
+                    .Include(x => x.Results)
+                    .Include(x => x.Devices)
+                    .Include(x => x.DevicesCompleted)
                     .Where(x => x.RunAt < expirationDate);
 
                 foreach (var run in scriptRuns)
@@ -628,7 +647,7 @@ namespace nexRemote.Server.Services
 
         public async Task ClearLogs(string currentUserName)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var currentUser = await dbContext.Users.FirstOrDefaultAsync(x => x.UserName == currentUserName);
             if (currentUser is null)
@@ -638,7 +657,6 @@ namespace nexRemote.Server.Services
 
             try
             {
-
                 if (currentUser.IsServerAdmin)
                 {
                     dbContext.EventLogs.RemoveRange(dbContext.EventLogs);
@@ -659,7 +677,7 @@ namespace nexRemote.Server.Services
 
         public async Task<ApiToken> CreateApiToken(string userName, string tokenName, string secretHash)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var user = dbContext.Users.FirstOrDefault(x => x.UserName == userName);
 
@@ -676,7 +694,7 @@ namespace nexRemote.Server.Services
 
         public async Task<Device> CreateDevice(DeviceSetupOptions options)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             try
             {
@@ -718,12 +736,11 @@ namespace nexRemote.Server.Services
                 WriteEvent(ex, options.OrganizationID);
                 return null;
             }
-
         }
 
         public async Task<bool> CreateUser(string userEmail, bool isAdmin, string organizationID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             try
             {
@@ -748,12 +765,11 @@ namespace nexRemote.Server.Services
                 WriteEvent(ex, organizationID);
                 return false;
             }
-
         }
 
         public async Task DeleteAlert(Alert alert)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             dbContext.Alerts.Remove(alert);
             await dbContext.SaveChangesAsync();
@@ -761,7 +777,7 @@ namespace nexRemote.Server.Services
 
         public async Task DeleteAllAlerts(string orgID, string userName = null)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var alerts = dbContext.Alerts.Where(x => x.OrganizationID == orgID);
 
@@ -778,7 +794,7 @@ namespace nexRemote.Server.Services
 
         public async Task DeleteApiToken(string userName, string tokenId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var user = dbContext.Users.FirstOrDefault(x => x.UserName == userName);
             var token = dbContext.ApiTokens.FirstOrDefault(x =>
@@ -791,7 +807,7 @@ namespace nexRemote.Server.Services
 
         public void DeleteDeviceGroup(string orgID, string deviceGroupID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var deviceGroup = dbContext.DeviceGroups
                 .Include(x => x.Devices)
@@ -821,7 +837,7 @@ namespace nexRemote.Server.Services
 
         public void DeleteInvite(string orgID, string inviteID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var invite = dbContext.InviteLinks.FirstOrDefault(x =>
                 x.OrganizationID == orgID &&
@@ -839,7 +855,7 @@ namespace nexRemote.Server.Services
 
         public async Task DeleteSavedScript(Guid scriptId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var script = dbContext.SavedScripts.Find(scriptId);
             if (script is not null)
@@ -851,7 +867,7 @@ namespace nexRemote.Server.Services
 
         public async Task DeleteScriptSchedule(int scriptScheduleId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var schedule = dbContext.ScriptSchedules.Find(scriptScheduleId);
             if (schedule is not null)
@@ -863,7 +879,7 @@ namespace nexRemote.Server.Services
 
         public async Task DeleteUser(string orgID, string targetUserID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var target = dbContext.Users
                 .Include(x => x.DeviceGroups)
@@ -903,24 +919,21 @@ namespace nexRemote.Server.Services
                 .FirstOrDefault(x => x.ID == orgID)
                 .nexRemoteUsers.Remove(target);
 
-
             dbContext.Users.Remove(target);
 
-
             await dbContext.SaveChangesAsync();
-
         }
 
         public void DetachEntity(object entity)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             dbContext.Entry(entity).State = EntityState.Detached;
         }
 
         public void DeviceDisconnected(string deviceID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var device = dbContext.Devices.Find(deviceID);
             if (device != null)
@@ -933,7 +946,7 @@ namespace nexRemote.Server.Services
 
         public bool DoesUserExist(string userName)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             if (string.IsNullOrWhiteSpace(userName))
             {
@@ -942,50 +955,50 @@ namespace nexRemote.Server.Services
             return dbContext.Users.Any(x => x.UserName.Trim().ToLower() == userName.Trim().ToLower());
         }
 
-        public bool DoesUserHaveAccessToDevice(string deviceID, nexRemoteUser nexRemoteUser)
+        public bool DoesUserHaveAccessToDevice(string deviceID, nexRemoteUser nexremoteUser)
         {
-            if (nexRemoteUser is null)
+            if (nexremoteUser is null)
             {
                 return false;
             }
 
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Devices
                 .Include(x => x.DeviceGroup)
                 .ThenInclude(x => x.Users)
-                .Any(device => device.OrganizationID == nexRemoteUser.OrganizationID &&
+                .Any(device => device.OrganizationID == nexremoteUser.OrganizationID &&
                     device.ID == deviceID &&
                     (
-                        nexRemoteUser.IsAdministrator ||
+                        nexremoteUser.IsAdministrator ||
                         string.IsNullOrWhiteSpace(device.DeviceGroupID) ||
-                        device.DeviceGroup.Users.Any(user => user.Id == nexRemoteUser.Id
+                        device.DeviceGroup.Users.Any(user => user.Id == nexremoteUser.Id
                     )));
         }
 
-        public bool DoesUserHaveAccessToDevice(string deviceID, string nexRemoteUserID)
+        public bool DoesUserHaveAccessToDevice(string deviceID, string nexremoteUserID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
-            var nexRemoteUser = dbContext.Users.Find(nexRemoteUserID);
+            var nexremoteUser = dbContext.Users.Find(nexremoteUserID);
 
-            return DoesUserHaveAccessToDevice(deviceID, nexRemoteUser);
+            return DoesUserHaveAccessToDevice(deviceID, nexremoteUser);
         }
 
-        public string[] FilterDeviceIDsByUserPermission(string[] deviceIDs, nexRemoteUser nexRemoteUser)
+        public string[] FilterDeviceIDsByUserPermission(string[] deviceIDs, nexRemoteUser nexremoteUser)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Devices
                 .Include(x => x.DeviceGroup)
                 .ThenInclude(x => x.Users)
                 .Where(device =>
-                    device.OrganizationID == nexRemoteUser.OrganizationID &&
+                    device.OrganizationID == nexremoteUser.OrganizationID &&
                     deviceIDs.Contains(device.ID) &&
                     (
-                        nexRemoteUser.IsAdministrator ||
+                        nexremoteUser.IsAdministrator ||
                         device.DeviceGroup.Users.Count == 0 ||
-                        device.DeviceGroup.Users.Any(user => user.Id == nexRemoteUser.Id
+                        device.DeviceGroup.Users.Any(user => user.Id == nexremoteUser.Id
                     )))
                 .Select(x => x.ID)
                 .ToArray();
@@ -993,14 +1006,14 @@ namespace nexRemote.Server.Services
 
         public string[] FilterUsersByDevicePermission(IEnumerable<string> userIDs, string deviceID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return FilterUsersByDevicePermissionInternal(dbContext, userIDs, deviceID);
         }
 
         public async Task<Alert> GetAlert(string alertID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return await dbContext.Alerts
                 .Include(x => x.Device)
@@ -1010,7 +1023,7 @@ namespace nexRemote.Server.Services
 
         public Alert[] GetAlerts(string userID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Alerts
                 .Include(x => x.Device)
@@ -1022,7 +1035,7 @@ namespace nexRemote.Server.Services
 
         public ApiToken[] GetAllApiTokens(string userID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var user = dbContext.Users.FirstOrDefault(x => x.Id == userID);
 
@@ -1034,7 +1047,7 @@ namespace nexRemote.Server.Services
 
         public ScriptResult[] GetAllCommandResults(string orgID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.ScriptResults
                 .Where(x => x.OrganizationID == orgID)
@@ -1044,7 +1057,7 @@ namespace nexRemote.Server.Services
 
         public ScriptResult[] GetAllCommandResultsForUser(string orgId, string userName, string deviceId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.ScriptResults
                 .Where(x => x.OrganizationID == orgId &&
@@ -1056,14 +1069,14 @@ namespace nexRemote.Server.Services
 
         public Device[] GetAllDevices(string orgID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Devices.Where(x => x.OrganizationID == orgID).ToArray();
         }
 
         public EventLog[] GetAllEventLogs(string orgID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.EventLogs
                 .Where(x => x.OrganizationID == orgID)
@@ -1073,7 +1086,7 @@ namespace nexRemote.Server.Services
 
         public InviteLink[] GetAllInviteLinks(string organizationId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.InviteLinks
                 .Where(x => x.OrganizationID == organizationId)
@@ -1082,7 +1095,7 @@ namespace nexRemote.Server.Services
 
         public ScriptResult[] GetAllScriptResults(string orgId, string deviceId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.ScriptResults
                 .Where(x => x.OrganizationID == orgId && x.DeviceID == deviceId)
@@ -1092,7 +1105,7 @@ namespace nexRemote.Server.Services
 
         public ScriptResult[] GetAllScriptResultsForUser(string orgId, string userName)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.ScriptResults
                 .Where(x => x.OrganizationID == orgId && x.SenderUserName == userName)
@@ -1102,7 +1115,7 @@ namespace nexRemote.Server.Services
 
         public nexRemoteUser[] GetAllUsersForServer()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Users.ToArray();
         }
@@ -1114,7 +1127,7 @@ namespace nexRemote.Server.Services
                 return Array.Empty<nexRemoteUser>();
             }
 
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var organization = await dbContext.Organizations
                 .Include(x => x.nexRemoteUsers)
@@ -1130,7 +1143,7 @@ namespace nexRemote.Server.Services
                 return null;
             }
 
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.ApiTokens.FirstOrDefault(x => x.ID == keyId);
         }
@@ -1142,7 +1155,7 @@ namespace nexRemote.Server.Services
                 return null;
             }
 
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var organization = await dbContext.Organizations
               .Include(x => x.BrandingInfo)
@@ -1163,14 +1176,14 @@ namespace nexRemote.Server.Services
 
         public async Task<Organization> GetDefaultOrganization()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return await dbContext.Organizations.FirstOrDefaultAsync(x => x.IsDefaultOrganization);
         }
 
         public async Task<string> GetDefaultRelayCode()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var relayCode = await dbContext.Organizations
                 .Where(x => x.IsDefaultOrganization)
@@ -1182,7 +1195,7 @@ namespace nexRemote.Server.Services
 
         public Device GetDevice(string orgID, string deviceID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Devices.FirstOrDefault(x =>
                             x.OrganizationID == orgID &&
@@ -1191,21 +1204,21 @@ namespace nexRemote.Server.Services
 
         public Device GetDevice(string deviceID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Devices.FirstOrDefault(x => x.ID == deviceID);
         }
 
         public int GetDeviceCount()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Devices.Count();
         }
 
         public int GetDeviceCount(nexRemoteUser user)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Devices
                 .Include(x => x.DeviceGroup)
@@ -1222,13 +1235,13 @@ namespace nexRemote.Server.Services
 
         public async Task<DeviceGroup> GetDeviceGroup(string deviceGroupID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
             return await dbContext.DeviceGroups.FindAsync(deviceGroupID);
         }
 
         public DeviceGroup[] GetDeviceGroups(string username)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var user = dbContext.Users.FirstOrDefault(x => x.UserName == username);
 
@@ -1264,7 +1277,7 @@ namespace nexRemote.Server.Services
 
         public DeviceGroup[] GetDeviceGroupsForOrganization(string organizationId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.DeviceGroups
                 .Include(x => x.Users)
@@ -1276,17 +1289,16 @@ namespace nexRemote.Server.Services
 
         public List<Device> GetDevices(IEnumerable<string> deviceIds)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Devices
                 .Where(x => deviceIds.Contains(x.ID))
                 .ToList();
-
         }
 
         public Device[] GetDevicesForUser(string userName)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             if (string.IsNullOrWhiteSpace(userName))
             {
@@ -1320,7 +1332,7 @@ namespace nexRemote.Server.Services
 
         public EventLog[] GetEventLogs(string userName, DateTimeOffset from, DateTimeOffset to, EventType? type, string message)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var user = dbContext.Users
                         .FirstOrDefault(x => x.UserName == userName);
@@ -1341,7 +1353,7 @@ namespace nexRemote.Server.Services
             {
                 var orgID = user.OrganizationID;
                 query = query
-                        .Where(x => x.OrganizationID == orgID && 
+                        .Where(x => x.OrganizationID == orgID &&
                             x.TimeStamp >= fromDate && x.TimeStamp <= toDate)
                         .OrderByDescending(x => x.TimeStamp);
             }
@@ -1359,14 +1371,14 @@ namespace nexRemote.Server.Services
 
         public Organization GetOrganizationById(string organizationID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Organizations.Find(organizationID);
         }
 
         public async Task<Organization> GetOrganizationByRelayCode(string relayCode)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             if (string.IsNullOrWhiteSpace(relayCode))
             {
@@ -1378,7 +1390,7 @@ namespace nexRemote.Server.Services
 
         public async Task<Organization> GetOrganizationByUserName(string userName)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var user = await dbContext
                 .Users
@@ -1390,21 +1402,21 @@ namespace nexRemote.Server.Services
 
         public int GetOrganizationCount()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Organizations.Count();
         }
 
         public string GetOrganizationNameById(string organizationID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Organizations.FirstOrDefault(x => x.ID == organizationID)?.OrganizationName;
         }
 
         public string GetOrganizationNameByUserName(string userName)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Users
                    .Include(x => x.Organization)
@@ -1415,12 +1427,12 @@ namespace nexRemote.Server.Services
 
         public async Task<List<ScriptRun>> GetPendingScriptRuns(string deviceId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var pendingRuns = new List<ScriptRun>();
 
             var now = Time.Now;
-    
+
             var scriptRunGroups = dbContext.ScriptRuns
                 .Include(x => x.Devices)
                 .Include(x => x.DevicesCompleted)
@@ -1446,13 +1458,12 @@ namespace nexRemote.Server.Services
 
             await dbContext.SaveChangesAsync();
 
-
             return pendingRuns;
         }
 
         public async Task<List<SavedScript>> GetQuickScripts(string userId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return await dbContext.SavedScripts
                 .Where(x => x.CreatorId == userId && x.IsQuickScript)
@@ -1461,8 +1472,8 @@ namespace nexRemote.Server.Services
 
         public async Task<SavedScript> GetSavedScript(string userId, Guid scriptId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
-            
+            using var dbContext = _appDbFactory.GetContext();
+
             return await dbContext.SavedScripts
                 .FirstOrDefaultAsync(x =>
                     x.Id == scriptId &&
@@ -1471,13 +1482,13 @@ namespace nexRemote.Server.Services
 
         public async Task<SavedScript> GetSavedScript(Guid scriptId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
             return await dbContext.SavedScripts.FirstOrDefaultAsync(x => x.Id == scriptId);
         }
 
         public async Task<List<SavedScript>> GetSavedScriptsWithoutContent(string userId, string organizationId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var query = dbContext.SavedScripts
                 .Include(x => x.Creator)
@@ -1499,7 +1510,7 @@ namespace nexRemote.Server.Services
 
         public ScriptResult GetScriptResult(string commandResultID, string orgID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.ScriptResults
                 .FirstOrDefault(x =>
@@ -1509,14 +1520,14 @@ namespace nexRemote.Server.Services
 
         public ScriptResult GetScriptResult(string commandResultID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.ScriptResults.Find(commandResultID);
         }
 
         public async Task<List<ScriptSchedule>> GetScriptSchedules(string organizationId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
             return await dbContext.ScriptSchedules
                 .Include(x => x.Creator)
                 .Include(x => x.Devices)
@@ -1527,7 +1538,7 @@ namespace nexRemote.Server.Services
 
         public async Task<List<ScriptSchedule>> GetScriptSchedulesDue()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var now = Time.Now;
 
@@ -1541,7 +1552,7 @@ namespace nexRemote.Server.Services
 
         public List<string> GetServerAdmins()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Users
                 .Where(x => x.IsServerAdmin)
@@ -1551,14 +1562,14 @@ namespace nexRemote.Server.Services
 
         public SharedFile GetSharedFiled(string fileID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.SharedFiles.Find(fileID);
         }
 
         public int GetTotalDevices()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Devices.Count();
         }
@@ -1569,7 +1580,7 @@ namespace nexRemote.Server.Services
             {
                 return null;
             }
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return await dbContext.Users.FirstOrDefaultAsync(x => x.UserName == username);
         }
@@ -1580,7 +1591,7 @@ namespace nexRemote.Server.Services
             {
                 return null;
             }
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Users.FirstOrDefault(x => x.Id == userID);
         }
@@ -1592,7 +1603,7 @@ namespace nexRemote.Server.Services
                 return null;
             }
 
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Users
                 .Include(x => x.Organization)
@@ -1601,7 +1612,7 @@ namespace nexRemote.Server.Services
 
         public nexRemoteUserOptions GetUserOptions(string userName)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             return dbContext.Users
                     .FirstOrDefault(x => x.UserName == userName)
@@ -1610,7 +1621,7 @@ namespace nexRemote.Server.Services
 
         public bool JoinViaInvitation(string userName, string inviteID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var invite = dbContext.InviteLinks.FirstOrDefault(x =>
                             x.InvitedUser.ToLower() == userName.ToLower() &&
@@ -1640,7 +1651,7 @@ namespace nexRemote.Server.Services
 
         public void PopulateRelayCodes()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             foreach (var organization in dbContext.Organizations)
             {
@@ -1658,7 +1669,7 @@ namespace nexRemote.Server.Services
 
         public void RemoveDevices(string[] deviceIDs)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var devices = dbContext.Devices
                 .Include(x => x.ScriptResults)
@@ -1675,7 +1686,7 @@ namespace nexRemote.Server.Services
 
         public async Task<bool> RemoveUserFromDeviceGroup(string orgID, string groupID, string userID)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var deviceGroup = dbContext.DeviceGroups
                 .Include(x => x.Users)
@@ -1699,7 +1710,7 @@ namespace nexRemote.Server.Services
 
         public async Task RenameApiToken(string userName, string tokenId, string tokenName)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var user = dbContext.Users.FirstOrDefault(x => x.UserName == userName);
             var token = dbContext.ApiTokens.FirstOrDefault(x =>
@@ -1712,7 +1723,7 @@ namespace nexRemote.Server.Services
 
         public async Task ResetBranding(string organizationId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var organization = await dbContext.Organizations
                .Include(x => x.BrandingInfo)
@@ -1730,7 +1741,7 @@ namespace nexRemote.Server.Services
 
         public void SetAllDevicesNotOnline()
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             dbContext.Devices.ForEachAsync(x =>
             {
@@ -1741,7 +1752,7 @@ namespace nexRemote.Server.Services
 
         public async Task SetDisplayName(nexRemoteUser user, string displayName)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             dbContext.Attach(user);
             user.UserOptions.DisplayName = displayName;
@@ -1750,7 +1761,7 @@ namespace nexRemote.Server.Services
 
         public async Task SetIsDefaultOrganization(string orgID, bool isDefault)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var organization = await dbContext.Organizations.FindAsync(orgID);
             if (organization is null)
@@ -1769,7 +1780,7 @@ namespace nexRemote.Server.Services
 
         public async Task SetIsServerAdmin(string targetUserId, bool isServerAdmin, string callerUserId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var caller = await dbContext.Users.FindAsync(callerUserId);
             if (caller?.IsServerAdmin != true)
@@ -1796,7 +1807,7 @@ namespace nexRemote.Server.Services
 
         public void SetServerVerificationToken(string deviceID, string verificationToken)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var device = dbContext.Devices.Find(deviceID);
             if (device != null)
@@ -1819,7 +1830,7 @@ namespace nexRemote.Server.Services
             {
                 return false;
             }
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             if (user.TempPassword == password)
             {
@@ -1839,7 +1850,7 @@ namespace nexRemote.Server.Services
             ColorPickerModel titleBackground,
             ColorPickerModel titleButtonForeground)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var organization = await dbContext.Organizations
                 .Include(x => x.BrandingInfo)
@@ -1879,16 +1890,28 @@ namespace nexRemote.Server.Services
 
         public void UpdateDevice(string deviceID, string tag, string alias, string deviceGroupID, string notes, WebRtcSetting webRtcSetting)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
-            var device = dbContext.Devices.Find(deviceID);
+            var device = dbContext.Devices
+                .Include(x => x.DeviceGroup)
+                .FirstOrDefault(x => x.ID == deviceID);
             if (device == null)
             {
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(deviceGroupID))
+            {
+                device.DeviceGroup?.Devices?.RemoveAll(x => x.ID == deviceID);
+                device.DeviceGroup = null;
+                device.DeviceGroupID = null;
+            }
+            else
+            {
+                device.DeviceGroupID = deviceGroupID;
+            }
+
             device.Tags = tag;
-            device.DeviceGroupID = deviceGroupID;
             device.Alias = alias;
             device.Notes = notes;
             device.WebRtcSetting = webRtcSetting;
@@ -1897,7 +1920,7 @@ namespace nexRemote.Server.Services
 
         public async Task<Device> UpdateDevice(DeviceSetupOptions deviceOptions, string organizationId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var device = dbContext.Devices.Find(deviceOptions.DeviceID);
             if (device == null || device.OrganizationID != organizationId)
@@ -1917,7 +1940,7 @@ namespace nexRemote.Server.Services
 
         public void UpdateOrganizationName(string orgID, string organizationName)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             dbContext.Organizations
                 .FirstOrDefault(x => x.ID == orgID)
@@ -1927,7 +1950,7 @@ namespace nexRemote.Server.Services
 
         public void UpdateTags(string deviceID, string tags)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var device = dbContext.Devices.Find(deviceID);
             if (device == null)
@@ -1941,7 +1964,7 @@ namespace nexRemote.Server.Services
 
         public void UpdateUserOptions(string userName, nexRemoteUserOptions options)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             dbContext.Users.FirstOrDefault(x => x.UserName == userName).UserOptions = options;
             dbContext.SaveChanges();
@@ -1949,15 +1972,13 @@ namespace nexRemote.Server.Services
 
         public bool ValidateApiKey(string keyId, string apiSecret, string requestPath, string remoteIP)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var hasher = new PasswordHasher<nexRemoteUser>();
             var token = dbContext.ApiTokens.FirstOrDefault(x => x.ID == keyId);
 
-
             var isValid = token is not null &&
                 hasher.VerifyHashedPassword(null, token.Secret, apiSecret) == PasswordVerificationResult.Success;
-
 
             if (token is not null)
             {
@@ -1974,7 +1995,7 @@ namespace nexRemote.Server.Services
         {
             try
             {
-                using var dbContext = _dbFactory.CreateDbContext();
+                using var dbContext = _appDbFactory.GetContext();
 
                 dbContext.EventLogs.Add(eventLog);
                 dbContext.SaveChanges();
@@ -1986,7 +2007,7 @@ namespace nexRemote.Server.Services
         {
             try
             {
-                using var dbContext = _dbFactory.CreateDbContext();
+                using var dbContext = _appDbFactory.GetContext();
 
                 dbContext.EventLogs.Add(new EventLog()
                 {
@@ -2011,7 +2032,7 @@ namespace nexRemote.Server.Services
         {
             try
             {
-                using var dbContext = _dbFactory.CreateDbContext();
+                using var dbContext = _appDbFactory.GetContext();
 
                 dbContext.EventLogs.Add(new EventLog()
                 {
@@ -2036,7 +2057,7 @@ namespace nexRemote.Server.Services
             try
             {
                 // TODO: Refactor EventLog to resemble these params.  Replace WriteEvent with ILogger<T>.
-                using var dbContext = _dbFactory.CreateDbContext();
+                using var dbContext = _appDbFactory.GetContext();
 
                 EventType eventType = EventType.Debug;
                 switch (logLevel)
@@ -2046,16 +2067,20 @@ namespace nexRemote.Server.Services
                     case LogLevel.Debug:
                         eventType = EventType.Debug;
                         break;
+
                     case LogLevel.Information:
                         eventType = EventType.Info;
                         break;
+
                     case LogLevel.Warning:
                         eventType = EventType.Warning;
                         break;
+
                     case LogLevel.Error:
                     case LogLevel.Critical:
                         eventType = EventType.Error;
                         break;
+
                     default:
                         break;
                 }
@@ -2071,7 +2096,6 @@ namespace nexRemote.Server.Services
                 dbContext.SaveChanges();
             }
             catch { }
-
         }
 
         private async Task<string> AddSharedFileInternal(
@@ -2080,7 +2104,7 @@ namespace nexRemote.Server.Services
             string contentType,
             string organizationId)
         {
-            using var dbContext = _dbFactory.CreateDbContext();
+            using var dbContext = _appDbFactory.GetContext();
 
             var expirationDate = DateTimeOffset.Now.AddDays(-_appConfig.DataRetentionInDays);
             var expiredFiles = dbContext.SharedFiles.Where(x => x.Timestamp < expirationDate);
@@ -2099,6 +2123,7 @@ namespace nexRemote.Server.Services
             await dbContext.SaveChangesAsync();
             return sharedFile.ID;
         }
+
         private string[] FilterUsersByDevicePermissionInternal(AppDb dbContext, IEnumerable<string> userIDs, string deviceID)
         {
             var device = dbContext.Devices

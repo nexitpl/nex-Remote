@@ -27,8 +27,6 @@ namespace nexRemote.Server.Hubs
 
         Task DeleteRemoteLogs(string deviceId);
 
-        Task DownloadFile(string filePath, string deviceID);
-
         Task ExecuteCommandOnAgent(ScriptingShell shell, string command, string[] deviceIDs);
 
         Task GetPowerShellCompletions(string inputText, int currentIndex, CompletionIntent intent, bool? forward);
@@ -109,16 +107,6 @@ namespace nexRemote.Server.Hubs
                 User.UserName);
 
             return _agentHubContext.Clients.Client(key).SendAsync("DeleteLogs");
-        }
-
-        public Task DownloadFile(string filePath, string deviceID)
-        {
-            if (_dataService.DoesUserHaveAccessToDevice(deviceID, User))
-            {
-                var targetDevice = AgentHub.ServiceConnections.FirstOrDefault(x => x.Value.ID == deviceID);
-                _agentHubContext.Clients.Client(targetDevice.Key).SendAsync("DownloadFile", filePath, ConnectionId);
-            }
-            return Task.CompletedTask;
         }
 
         public Task ExecuteCommandOnAgent(ScriptingShell shell, string command, string[] deviceIDs)
@@ -261,10 +249,10 @@ namespace nexRemote.Server.Hubs
                 username = User.UserName;
                 deviceIds = _dataService.FilterDeviceIDsByUserPermission(deviceIds.ToArray(), User);
             }
-           
+
             var authToken = _expiringTokenService.GetToken(Time.Now.AddMinutes(AppConstants.ScriptRunExpirationMinutes));
 
-            var connectionIds = AgentHub.ServiceConnections.Where(x => deviceIds.Contains(x.Value.ID)).Select(x=>x.Key);
+            var connectionIds = AgentHub.ServiceConnections.Where(x => deviceIds.Contains(x.Value.ID)).Select(x => x.Key);
 
             if (connectionIds.Any())
             {

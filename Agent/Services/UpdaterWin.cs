@@ -1,9 +1,12 @@
 ﻿using nexRemote.Agent.Interfaces;
+using nexRemote.Agent.Services;
 using nexRemote.Shared.Utilities;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,19 +14,20 @@ namespace nexRemote.Agent.Services
 {
     public class UpdaterWin : IUpdater
     {
-        private readonly SemaphoreSlim _checkForUpdatesLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _checkForUpdatesLock = new(1, 1);
         private readonly ConfigService _configService;
-        private readonly IWebClientEx _webClientEx;
-        private readonly SemaphoreSlim _installLatestVersionLock = new SemaphoreSlim(1, 1);
-        private readonly System.Timers.Timer _updateTimer = new System.Timers.Timer(TimeSpan.FromHours(6).TotalMilliseconds);
+        private readonly IUpdateDownloader _updateDownloader;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly SemaphoreSlim _installLatestVersionLock = new(1, 1);
+        private readonly System.Timers.Timer _updateTimer = new(TimeSpan.FromHours(6).TotalMilliseconds);
         private DateTimeOffset _lastUpdateFailure;
 
 
-        public UpdaterWin(ConfigService configService, IWebClientEx webClientEx)
+        public UpdaterWin(ConfigService configService, IUpdateDownloader updateDownloader, IHttpClientFactory httpClientFactory)
         {
             _configService = configService;
-            _webClientEx = webClientEx;
-            _webClientEx.SetRequestTimeout((int)_updateTimer.Interval);
+            _updateDownloader = updateDownloader;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task BeginChecking()
@@ -40,9 +44,13 @@ namespace nexRemote.Agent.Services
 
         public async Task CheckForUpdates()
         {
+            if (!await _checkForUpdatesLock.WaitAsync(0))
+            {
+                return;
+            }
+
             try
             {
-                await _checkForUpdatesLock.WaitAsync();
 
                 if (EnvironmentHelper.IsDebug)
                 {
@@ -51,7 +59,7 @@ namespace nexRemote.Agent.Services
 
                 if (_lastUpdateFailure.AddDays(1) > DateTimeOffset.Now)
                 {
-                    Logger.Write("Pomijanie sprawdzania aktualizacji z powodu poprzedniej awarii.  Aktualizacja zostanie podjęta ponownie po upływie 24 godzin.");
+                    Logger.Write("Skipping update check due to previous failure.  Updating will be tried again after 24 hours have passed.");
                     return;
                 }
 
@@ -62,35 +70,36 @@ namespace nexRemote.Agent.Services
                 var platform = Environment.Is64BitOperatingSystem ? "x64" : "x86";
                 var fileUrl = serverUrl + $"/Content/nex-Remote-Win10-{platform}.zip";
 
-                var lastEtag = string.Empty;
+                using var httpClient = _httpClientFactory.CreateClient();
+                using var request = new HttpRequestMessage(HttpMethod.Head, fileUrl);
 
                 if (File.Exists("etag.txt"))
                 {
-                    lastEtag = await File.ReadAllTextAsync("etag.txt");
-                }
-
-                try
-                {
-                    var wr = WebRequest.CreateHttp(fileUrl);
-                    wr.Method = "Head";
-                    wr.Headers.Add("If-None-Match", lastEtag);
-                    using var response = (HttpWebResponse)await wr.GetResponseAsync();
-                    if (response.StatusCode == HttpStatusCode.NotModified)
+                    var lastEtag = await File.ReadAllTextAsync("etag.txt");
+                    if (!string.IsNullOrWhiteSpace(lastEtag) &&
+                       EntityTagHeaderValue.TryParse(lastEtag.Trim(), out var etag))
                     {
-                        Logger.Write("Service Updater: wersja jest aktualna.");
-                        return;
+                        request.Headers.IfNoneMatch.Add(etag);
                     }
                 }
-                catch (WebException ex) when ((ex.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotModified)
+
+                using var response = await httpClient.SendAsync(request);
+                if (response.StatusCode == HttpStatusCode.NotModified)
                 {
-                    Logger.Write("Service Updater: wersja jest aktualna.");
+                    Logger.Write("Service Updater: Version is current.");
                     return;
                 }
 
-                Logger.Write("Aktualizator usług: znaleziono aktualizację.");
+
+                Logger.Write("Service Updater: Update found.");
 
                 await InstallLatestVersion();
 
+            }
+            catch (WebException ex) when ((ex.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotModified)
+            {
+                Logger.Write("Service Updater: Version is current.");
+                return;
             }
             catch (Exception ex)
             {
@@ -102,11 +111,6 @@ namespace nexRemote.Agent.Services
             }
         }
 
-        public void Dispose()
-        {
-            _webClientEx?.Dispose();
-        }
-
         public async Task InstallLatestVersion()
         {
             try
@@ -116,7 +120,7 @@ namespace nexRemote.Agent.Services
                 var connectionInfo = _configService.GetConnectionInfo();
                 var serverUrl = connectionInfo.Host;
 
-                Logger.Write("Service Updater: Pobieranie pakietu instalacyjnego.");
+                Logger.Write("Service Updater: Downloading install package.");
 
                 var downloadId = Guid.NewGuid().ToString();
                 var zipPath = Path.Combine(Path.GetTempPath(), "nex-RemoteUpdate.zip");
@@ -124,29 +128,29 @@ namespace nexRemote.Agent.Services
                 var installerPath = Path.Combine(Path.GetTempPath(), "nex-Remote_Installer.exe");
                 var platform = Environment.Is64BitOperatingSystem ? "x64" : "x86";
 
-                await _webClientEx.DownloadFileTaskAsync(
-                     serverUrl + $"/Content/nex-Remote_Installer.exe",
+                await _updateDownloader.DownloadFile(
+                     $"{serverUrl}/Content/nex-Remote_Installer.exe",
                      installerPath);
 
-                await _webClientEx.DownloadFileTaskAsync(
-                   serverUrl + $"/api/AgentUpdate/DownloadPackage/win-{platform}/{downloadId}",
+                await _updateDownloader.DownloadFile(
+                   $"{serverUrl}/api/AgentUpdate/DownloadPackage/win-{platform}/{downloadId}",
                    zipPath);
 
-                (await WebRequest.CreateHttp(serverUrl + $"/api/AgentUpdate/ClearDownload/{downloadId}").GetResponseAsync()).Dispose();
-
+                using var httpClient = _httpClientFactory.CreateClient();
+                using var response = httpClient.GetAsync($"{serverUrl}/api/AgentUpdate/ClearDownload/{downloadId}");
 
                 foreach (var proc in Process.GetProcessesByName("nex-Remote_Installer"))
                 {
                     proc.Kill();
                 }
 
-                Logger.Write("Uruchamianie instalatora w celu przeprowadzenia aktualizacji.");
+                Logger.Write("Launching installer to perform update.");
 
                 Process.Start(installerPath, $"-install -quiet -path {zipPath} -serverurl {serverUrl} -organizationid {connectionInfo.OrganizationID}");
             }
             catch (WebException ex) when (ex.Status == WebExceptionStatus.Timeout)
             {
-                Logger.Write("Przekroczono limit czasu oczekiwania na pobranie aktualizacji.", Shared.Enums.EventType.Warning);
+                Logger.Write("Timed out while waiting to download update.", Shared.Enums.EventType.Warning);
                 _lastUpdateFailure = DateTimeOffset.Now;
             }
             catch (Exception ex)

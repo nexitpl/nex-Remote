@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using nexRemote.Server.Data;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,7 @@ namespace nexRemote.Server.Data
     {
         private readonly IConfiguration _configuration;
 
-        public PostgreSqlDbContext(DbContextOptions context, IConfiguration configuration)
-            : base(context)
+        public PostgreSqlDbContext(IConfiguration configuration)
         {
             _configuration = configuration;
         }

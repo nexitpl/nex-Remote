@@ -10,10 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Text;
-using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -28,7 +26,7 @@ namespace nexRemote.Agent.Services
         private readonly ConfigService _configService;
 
         private readonly IDeviceInformationService _deviceInfoService;
-
+        private readonly IHttpClientFactory _httpFactory;
         private readonly ScriptExecutor _scriptExecutor;
 
         private readonly Uninstaller _uninstaller;
@@ -42,12 +40,13 @@ namespace nexRemote.Agent.Services
         private bool IsServerVerified;
 
         public AgentSocket(ConfigService configService,
-                                                                                                    Uninstaller uninstaller,
+            Uninstaller uninstaller,
             ScriptExecutor scriptExecutor,
             ChatClientService chatService,
             IAppLauncher appLauncher,
             IUpdater updater,
-            IDeviceInformationService deviceInfoService)
+            IDeviceInformationService deviceInfoService,
+            IHttpClientFactory httpFactory)
         {
             _configService = configService;
             _uninstaller = uninstaller;
@@ -56,6 +55,7 @@ namespace nexRemote.Agent.Services
             _chatService = chatService;
             _updater = updater;
             _deviceInfoService = deviceInfoService;
+            _httpFactory = httpFactory;
         }
         public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected;
         public async Task Connect()
@@ -101,7 +101,10 @@ namespace nexRemote.Agent.Services
                     return;
                 }
 
-                await CheckForServerMigration();
+                if (await CheckForServerMigration())
+                {
+                    return;
+                }
 
                 HeartbeatTimer?.Dispose();
                 HeartbeatTimer = new System.Timers.Timer(TimeSpan.FromMinutes(5).TotalMilliseconds);
@@ -152,7 +155,7 @@ namespace nexRemote.Agent.Services
             }
         }
 
-        private async Task CheckForServerMigration()
+        private async Task<bool> CheckForServerMigration()
         {
             var serverUrl = await _hubConnection.InvokeAsync<string>("GetServerUrl");
 
@@ -161,8 +164,12 @@ namespace nexRemote.Agent.Services
                 serverUri.Host != savedUri.Host)
             {
                 _connectionInfo.Host = serverUrl.Trim().TrimEnd('/');
+                _connectionInfo.ServerVerificationToken = null;
                 _configService.SaveConnectionInfo(_connectionInfo);
+                await _hubConnection.DisposeAsync();
+                return true;
             }
+            return false;
         }
         private async void HeartbeatTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
@@ -221,63 +228,10 @@ namespace nexRemote.Agent.Services
             });
 
             _hubConnection.On("DeleteLogs", () =>
-           {
-               Logger.DeleteLogs();
-           });
-
-            _hubConnection.On("DownloadFile", async (string filePath, string senderConnectionID) =>
             {
-                try
-                {
-                    if (!IsServerVerified)
-                    {
-                        Logger.Write("Próba pobrania pliku przed zweryfikowaniem serwera.", EventType.Warning);
-                        return;
-                    }
-
-                    filePath = filePath.Replace("\"", "");
-                    if (!File.Exists(filePath))
-                    {
-                        await _hubConnection.SendAsync("DisplayMessage",
-                            "Nie znaleziono pliku na zdalnym urządzeniu.",
-                            "Nie znaleziono pliku.",
-                            "bg-danger",
-                            senderConnectionID);
-                        return;
-                    }
-
-                    using var wc = new WebClient();
-                    var lastProgressPercent = 0;
-                    wc.UploadProgressChanged += async (sender, args) =>
-                    {
-                        if (args.ProgressPercentage > lastProgressPercent)
-                        {
-                            lastProgressPercent = args.ProgressPercentage;
-                            await _hubConnection.SendAsync("DownloadFileProgress", lastProgressPercent, senderConnectionID);
-                        }
-                    };
-
-                    try
-                    {
-                        var response = await wc.UploadFileTaskAsync($"{_connectionInfo.Host}/API/FileSharing/", filePath);
-                        var fileIDs = JsonSerializer.Deserialize<string[]>(Encoding.UTF8.GetString(response));
-                        await _hubConnection.SendAsync("DownloadFile", fileIDs[0], senderConnectionID);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Write(ex);
-                        await _hubConnection.SendAsync("DisplayMessage",
-                            "Wystąpił błąd podczas przesyłania pliku ze zdalnego komputera.",
-                            "Błąd przesyłania.",
-                            "bg-danger",
-                            senderConnectionID);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Write(ex);
-                }
+                Logger.DeleteLogs();
             });
+
 
             _hubConnection.On("ExecuteCommand", ((ScriptingShell shell, string command, string authToken, string senderUsername, string senderConnectionID) =>
             {
@@ -458,21 +412,16 @@ namespace nexRemote.Agent.Services
                     foreach (var fileID in fileIDs)
                     {
                         var url = $"{_connectionInfo.Host}/API/FileSharing/{fileID}";
-                        var wr = WebRequest.CreateHttp(url);
-                        wr.Headers[HttpRequestHeader.Authorization] = authToken;
-                        using var response = await wr.GetResponseAsync();
-                        var cd = response.Headers["Content-Disposition"];
-                        var filename = cd
-                                        .Split(";")
-                                        .FirstOrDefault(x => x.Trim()
-                                        .StartsWith("filename"))
-                                        .Split("=")[1];
+                        using var client = _httpFactory.CreateClient();
+                        client.DefaultRequestHeaders.Add("Authorization", authToken);
+                        using var response = await client.GetAsync(url);
 
+                        var filename = response.Content.Headers.ContentDisposition.FileName;
                         var legalChars = filename.ToCharArray().Where(x => !Path.GetInvalidFileNameChars().Any(y => x == y));
 
                         filename = new string(legalChars.ToArray());
 
-                        using var rs = response.GetResponseStream();
+                        using var rs = await response.Content.ReadAsStreamAsync();
                         using var fs = new FileStream(Path.Combine(sharedFilePath, filename), FileMode.Create);
                         rs.CopyTo(fs);
                     }

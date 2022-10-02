@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using nexRemote.Shared.Extensions;
 
 namespace Server.Installer.Services
 {
@@ -36,23 +37,38 @@ namespace Server.Installer.Services
             {
                 ConsoleHelper.WriteLine("Downloading pre-built server package.");
 
-                int progress = 0;
-
                 var releaseFile = cliParams.WebServer == WebServerType.IisWindows ?
                     "https://github.com/nexitpl/nex-Remote/releases/latest/download/nex-Remote_Server_Win-x64.zip" :
-                    "https://github.com/nexitpl/nex-Remote/releases/latest/download/nex-Remote_Linux-x64.zip";
+                    "https://github.com/nexitpl/nex-Remote/releases/latest/download/nex-Remote_Server_Linux-x64.zip";
 
-                using var webClient = new WebClient();
-                webClient.DownloadProgressChanged += (sender, args) =>
+                using var httpClient = new HttpClient();
+                var response = await httpClient.GetAsync(releaseFile);
+                var contentLength = (double?)response.Content.Headers.ContentLength;
+
+                using var webStream = await response.Content.ReadAsStreamAsync();
+                using var fileStream = new FileStream(zipPath, FileMode.Create);
+
+                var progress = 0;
+
+                await webStream.CopyToAsync(fileStream, (int bytesRead) =>
                 {
-                    var newProgress = args.ProgressPercentage / 5 * 5;
-                    if (newProgress != progress)
+                    if (contentLength is null ||
+                        contentLength <= 0)
                     {
-                        progress = newProgress;
+                        return;
+
+                    }
+
+                    var newProgress = bytesRead / contentLength * 100;
+
+                    if (newProgress == 100 ||
+                        newProgress - progress > 5)
+                    {
+                        progress = (int)newProgress;
                         ConsoleHelper.WriteLine($"Progress: {progress}%");
                     }
-                };
-                await webClient.DownloadFileTaskAsync(releaseFile, zipPath);
+                });
+
             }
             else
             {
@@ -103,13 +119,13 @@ namespace Server.Installer.Services
                 var w3wpProcs = Process.GetProcessesByName("w3wp");
                 if (w3wpProcs.Length > 0)
                 {
-                    Process.Start("powershell.exe", "-Command & \"{ Stop-WebAppPool -Name nexRemote -ErrorAction SilentlyContinue }\"").WaitForExit();
-                    Process.Start("powershell.exe", "-Command & \"{ Stop-Website -Name nexRemote -ErrorAction SilentlyContinue }\"").WaitForExit();
+                    Process.Start("powershell.exe", "-Command & \"{ Stop-WebAppPool -Name nex-Remote -ErrorAction SilentlyContinue }\"").WaitForExit();
+                    Process.Start("powershell.exe", "-Command & \"{ Stop-Website -Name nex-Remote -ErrorAction SilentlyContinue }\"").WaitForExit();
 
                     ConsoleHelper.WriteLine("Waiting for w3wp processes to close...");
                     foreach (var proc in w3wpProcs)
                     {
-                        try { proc.Kill(); } 
+                        try { proc.Kill(); }
                         catch { }
                     }
                     TaskHelper.DelayUntil(() => Process.GetProcessesByName("w3wp").Length < w3wpProcs.Length, TimeSpan.FromMinutes(5), 100);

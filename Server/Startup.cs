@@ -19,14 +19,12 @@ using nexRemote.Server.Hubs;
 using nexRemote.Server.Services;
 using nexRemote.Shared.Models;
 using nexRemote.Server.Areas.Identity;
-using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Authorization;
 using nexRemote.Server.Auth;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace nexRemote.Server
 {
@@ -49,34 +47,21 @@ namespace nexRemote.Server
             var dbProvider = Configuration["ApplicationOptions:DBProvider"].ToLower();
             if (dbProvider == "sqlite")
             {
-                services.AddDbContextFactory<SqliteDbContext>(options =>
+                services.AddDbContext<AppDb, SqliteDbContext>(options =>
                 {
                     options.UseSqlite(Configuration.GetConnectionString("SQLite"));
                 });
-
-                services.AddScoped<IDbContextFactory<AppDb>>(p =>
-                    p.GetRequiredService<IDbContextFactory<SqliteDbContext>>());
-
-                services.AddScoped<AppDb, SqliteDbContext>(p =>
-                    p.GetRequiredService<IDbContextFactory<SqliteDbContext>>().CreateDbContext());
-
             }
             else if (dbProvider == "sqlserver")
             {
-                services.AddDbContextFactory<SqlServerDbContext>(options =>
+                services.AddDbContext<AppDb, SqlServerDbContext>(options =>
                 {
                     options.UseSqlServer(Configuration.GetConnectionString("SQLServer"));
                 });
-
-                services.AddScoped<IDbContextFactory<AppDb>>(p =>
-                    p.GetRequiredService<IDbContextFactory<SqlServerDbContext>>());
-
-                services.AddScoped<AppDb, SqlServerDbContext>(p =>
-                    p.GetRequiredService<IDbContextFactory<SqlServerDbContext>>().CreateDbContext());
             }
             else if (dbProvider == "postgresql")
             {
-                services.AddDbContextFactory<PostgreSqlDbContext>(options =>
+                services.AddDbContext<AppDb, PostgreSqlDbContext>(options =>
                 {
                     // Password should be set in User Secrets in dev environment.
                     // See https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-3.1
@@ -93,12 +78,6 @@ namespace nexRemote.Server
                         options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL"));
                     }
                 });
-
-                services.AddScoped<IDbContextFactory<AppDb>>(p =>
-                    p.GetRequiredService<IDbContextFactory<PostgreSqlDbContext>>());
-
-                services.AddScoped<AppDb, PostgreSqlDbContext>(p =>
-                    p.GetRequiredService<IDbContextFactory<PostgreSqlDbContext>>().CreateDbContext());
             }
 
             services.AddIdentity<nexRemoteUser, IdentityRole>(options =>
@@ -168,7 +147,7 @@ namespace nexRemote.Server
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v2", new OpenApiInfo { Title = "nex-Remote API", Version = "v2" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "nex-Remote API", Version = "v1" });
             });
 
 
@@ -176,6 +155,7 @@ namespace nexRemote.Server
             services.AddLogging();
             services.AddScoped<IEmailSenderEx, EmailSenderEx>();
             services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<IAppDbFactory, AppDbFactory>();
             services.AddTransient<IDataService, DataService>();
             services.AddScoped<IApplicationConfig, ApplicationConfig>();
             services.AddScoped<ApiAuthorizationFilter>();
@@ -231,7 +211,7 @@ namespace nexRemote.Server
 
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "nex-Remote API V2");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "nex-Remote API V1");
             });
 
             app.UseRouting();

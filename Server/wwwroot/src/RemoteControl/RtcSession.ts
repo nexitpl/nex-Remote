@@ -8,7 +8,7 @@ export class RtcSession {
     DataChannel: RTCDataChannel;
     MessagePack: any = window['msgpack5']();
     Init(iceServers: IceServerModel[]) {
-       
+
         this.PeerConnection = new RTCPeerConnection({
             iceServers: iceServers.map(x => {
                 return {
@@ -19,7 +19,7 @@ export class RtcSession {
                 }
             })
         });
-        
+
         this.PeerConnection.ondatachannel = (ev) => {
             console.log("Data channel received.");
             this.DataChannel = ev.channel;
@@ -34,7 +34,7 @@ export class RtcSession {
                 UI.VideoScreenViewer.setAttribute("hidden", "hidden");
             };
             this.DataChannel.onerror = (ev) => {
-                console.log("Data channel error.", ev.error);
+                console.log("Data channel error.", ev);
                 UI.ConnectionP2PIcon.style.display = "none";
                 UI.ConnectionRelayedIcon.style.display = "unset";
 
@@ -45,7 +45,7 @@ export class RtcSession {
             this.DataChannel.onmessage = (ev) => {
                 var data = ev.data as ArrayBuffer;
                 ViewerApp.DtoMessageHandler.ParseBinaryMessage(data);
-               
+
             };
             this.DataChannel.onopen = (ev) => {
                 console.log("Data channel opened.");

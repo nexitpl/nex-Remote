@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using nexRemote.Server.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,7 @@ namespace nexRemote.Server.Data
     {
         private readonly IConfiguration _configuration;
 
-        public SqlServerDbContext(DbContextOptions context, IConfiguration configuration)
-            : base(context)
+        public SqlServerDbContext(IConfiguration configuration)
         {
             _configuration = configuration;
         }

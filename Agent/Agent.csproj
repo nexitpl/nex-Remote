@@ -1,48 +1,44 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Copyright>nex-IT Jakub Potoczny</Copyright>
-    <Description>nex-Remote - System Pomocy Zdalnej</Description>
-    <Authors>Jakub Potoczny</Authors>
-    <Product>nex-Remote Agent</Product>
-    <Company>Usługi Informatyczne "nex-IT" Jakub Potoczny</Company>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <PackageProjectUrl>https://nex-it.pl</PackageProjectUrl>
-    <Platforms>AnyCPU;x86;x64</Platforms>
-    <AssemblyName>nex-Remote_Agent</AssemblyName>
-    <RootNamespace>nex-Remote.Agent</RootNamespace>
-    <ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>nex-Remote.pfx</AssemblyOriginatorKeyFile>
-    <DelaySign>false</DelaySign>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<Copyright>Copyright ©  2022 nex-IT Jakub Potoczny</Copyright>
+		<Description>nex-Remote - System pomocy zdalnej opracowany przez nex-IT Jakub Potoczny</Description>
+		<Authors>Jakub Potoczny</Authors>
+		<Product>nex-Remote Agent</Product>
+		<Company>nex-IT Jakub Potoczny</Company>
+		<AssemblyVersion>2.0.0.0</AssemblyVersion>
+		<PackageProjectUrl>https://nex-it.pl</PackageProjectUrl>
+		<Platforms>AnyCPU;x86;x64</Platforms>
+		<AssemblyName>nex-Remote_Agent</AssemblyName>
+		<RootNamespace>nexRemote.Agent</RootNamespace>
+		<ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="Assets\favicon.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="Assets\favicon.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="5.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.8" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.1.3" />
-    <PackageReference Include="Microsoft.WSMan.Management" Version="7.1.3" />
-    <PackageReference Include="Microsoft.WSMan.Runtime" Version="7.1.3" />
-    <PackageReference Include="System.Management.Automation" Version="7.1.3" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="5.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="6.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="6.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.6" />
+		<PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.5" />
+		<PackageReference Include="Microsoft.WSMan.Management" Version="7.2.5" />
+		<PackageReference Include="Microsoft.WSMan.Runtime" Version="7.2.5" />
+		<PackageReference Include="System.Management.Automation" Version="7.2.5" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.csproj" />
-  </ItemGroup>
-
-  <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+	<ItemGroup>
+		<ProjectReference Include="..\Shared\Shared.csproj" />
+	</ItemGroup>
 
 
 </Project>

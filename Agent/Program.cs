@@ -54,7 +54,7 @@ namespace nexRemote.Agent
             serviceCollection.AddScoped<Uninstaller>();
             serviceCollection.AddScoped<ScriptExecutor>();
             serviceCollection.AddScoped<IProcessInvoker, ProcessInvoker>();
-            serviceCollection.AddScoped<IWebClientEx, WebClientEx>();
+            serviceCollection.AddScoped<IUpdateDownloader, IUpdateDownloader>();
 
             if (EnvironmentHelper.IsWindows)
             {

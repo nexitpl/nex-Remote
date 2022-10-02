@@ -1,4 +1,5 @@
 using nexRemote.Agent.Interfaces;
+using nexRemote.Agent.Services;
 using nexRemote.Shared.Utilities;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -17,18 +20,19 @@ namespace nexRemote.Agent.Services
     public class UpdaterMac : IUpdater
     {
         private readonly string _achitecture = RuntimeInformation.OSArchitecture.ToString().ToLower();
-        private readonly SemaphoreSlim _checkForUpdatesLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _checkForUpdatesLock = new(1, 1);
         private readonly ConfigService _configService;
-        private readonly IWebClientEx _webClientEx;
-        private readonly SemaphoreSlim _installLatestVersionLock = new SemaphoreSlim(1, 1);
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IUpdateDownloader _updateDownloader;
+        private readonly SemaphoreSlim _installLatestVersionLock = new(1, 1);
         private DateTimeOffset _lastUpdateFailure;
-        private readonly System.Timers.Timer _updateTimer = new System.Timers.Timer(TimeSpan.FromHours(6).TotalMilliseconds);
+        private readonly System.Timers.Timer _updateTimer = new(TimeSpan.FromHours(6).TotalMilliseconds);
 
-        public UpdaterMac(ConfigService configService, IWebClientEx webClientEx)
+        public UpdaterMac(ConfigService configService, IUpdateDownloader updateDownloader, IHttpClientFactory httpClientFactory)
         {
             _configService = configService;
-            _webClientEx = webClientEx;
-            _webClientEx.SetRequestTimeout((int)_updateTimer.Interval);
+            _httpClientFactory = httpClientFactory;
+            _updateDownloader = updateDownloader;
         }
 
 
@@ -46,10 +50,13 @@ namespace nexRemote.Agent.Services
 
         public async Task CheckForUpdates()
         {
+            if (!await _checkForUpdatesLock.WaitAsync(0))
+            {
+                return;
+            }
+
             try
             {
-                await _checkForUpdatesLock.WaitAsync();
-
                 if (EnvironmentHelper.IsDebug)
                 {
                     return;
@@ -57,7 +64,7 @@ namespace nexRemote.Agent.Services
 
                 if (_lastUpdateFailure.AddDays(1) > DateTimeOffset.Now)
                 {
-                    Logger.Write("Pomijanie sprawdzania aktualizacji z powodu poprzedniej awarii.  Uruchom ponownie us³ugê, aby spróbowaæ ponownie, lub rêcznie zainstaluj aktualizacjê.");
+                    Logger.Write("Skipping update check due to previous failure.  Restart the service to try again, or manually install the update.");
                     return;
                 }
 
@@ -67,35 +74,36 @@ namespace nexRemote.Agent.Services
 
                 var fileUrl = serverUrl + $"/Content/nex-Remote-MacOS-{_achitecture}.zip";
 
-                var lastEtag = string.Empty;
+                using var httpClient = _httpClientFactory.CreateClient();
+                using var request = new HttpRequestMessage(HttpMethod.Head, fileUrl);
 
                 if (File.Exists("etag.txt"))
                 {
-                    lastEtag = await File.ReadAllTextAsync("etag.txt");
-                }
-
-                try
-                {
-                    var wr = WebRequest.CreateHttp(fileUrl);
-                    wr.Method = "Head";
-                    wr.Headers.Add("If-None-Match", lastEtag);
-                    using var response = (HttpWebResponse)await wr.GetResponseAsync();
-                    if (response.StatusCode == HttpStatusCode.NotModified)
+                    var lastEtag = await File.ReadAllTextAsync("etag.txt");
+                    if (!string.IsNullOrWhiteSpace(lastEtag) &&
+                       EntityTagHeaderValue.TryParse(lastEtag.Trim(), out var etag))
                     {
-                        Logger.Write("Service Updater: wersja jest aktualna.");
-                        return;
+                        request.Headers.IfNoneMatch.Add(etag);
                     }
                 }
-                catch (WebException ex) when ((ex.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotModified)
+
+                using var response = await httpClient.SendAsync(request);
+
+                if (response.StatusCode == HttpStatusCode.NotModified)
                 {
-                    Logger.Write("Service Updater: wersja jest aktualna.");
+                    Logger.Write("Service Updater: Version is current.");
                     return;
                 }
 
-                Logger.Write("Aktualizator us³ug: znaleziono aktualizacjê.");
+                Logger.Write("Service Updater: Update found.");
 
                 await InstallLatestVersion();
 
+            }
+            catch (WebException ex) when ((ex.Response as HttpWebResponse).StatusCode == HttpStatusCode.NotModified)
+            {
+                Logger.Write("Service Updater: Version is current.");
+                return;
             }
             catch (Exception ex)
             {
@@ -107,11 +115,6 @@ namespace nexRemote.Agent.Services
             }
         }
 
-        public void Dispose()
-        {
-            _webClientEx?.Dispose();
-        }
-
         public async Task InstallLatestVersion()
         {
             try
@@ -121,24 +124,25 @@ namespace nexRemote.Agent.Services
                 var connectionInfo = _configService.GetConnectionInfo();
                 var serverUrl = connectionInfo.Host;
 
-                Logger.Write("Service Updater: Pobieranie pakietu instalacyjnego.");
+                Logger.Write("Service Updater: Downloading install package.");
 
                 var downloadId = Guid.NewGuid().ToString();
                 var zipPath = Path.Combine(Path.GetTempPath(), "nex-RemoteUpdate.zip");
 
                 var installerPath = Path.Combine(Path.GetTempPath(), "nex-RemoteUpdate.sh");
 
-                await _webClientEx.DownloadFileTaskAsync(
-                       serverUrl + $"/API/ClientDownloads/{connectionInfo.OrganizationID}/MacOSInstaller-{_achitecture}",
+                await _updateDownloader.DownloadFile(
+                       $"{serverUrl}/API/ClientDownloads/{connectionInfo.OrganizationID}/MacOSInstaller-{_achitecture}",
                        installerPath);
 
-                await _webClientEx.DownloadFileTaskAsync(
-                   serverUrl + $"/API/AgentUpdate/DownloadPackage/macos-{_achitecture}/{downloadId}",
+                await _updateDownloader.DownloadFile(
+                   $"{serverUrl}/API/AgentUpdate/DownloadPackage/macos-{_achitecture}/{downloadId}",
                    zipPath);
 
-                (await WebRequest.CreateHttp(serverUrl + $"/api/AgentUpdate/ClearDownload/{downloadId}").GetResponseAsync()).Dispose();
+                using var httpClient = _httpClientFactory.CreateClient();
+                using var response = httpClient.GetAsync($"{serverUrl}/api/AgentUpdate/ClearDownload/{downloadId}");
 
-                Logger.Write("Uruchamianie instalatora w celu przeprowadzenia aktualizacji.");
+                Logger.Write("Launching installer to perform update.");
 
                 Process.Start("sudo", $"chmod +x {installerPath}").WaitForExit();
 
@@ -146,7 +150,7 @@ namespace nexRemote.Agent.Services
             }
             catch (WebException ex) when (ex.Status == WebExceptionStatus.Timeout)
             {
-                Logger.Write("Przekroczono limit czasu oczekiwania na pobranie aktualizacji.", Shared.Enums.EventType.Warning);
+                Logger.Write("Timed out while waiting to download update.", Shared.Enums.EventType.Warning);
                 _lastUpdateFailure = DateTimeOffset.Now;
             }
             catch (Exception ex)

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace nexRemote.Agent.Interfaces
 {
-    public interface IUpdater : IDisposable
+    public interface IUpdater
     {
         Task BeginChecking();
         Task CheckForUpdates();
