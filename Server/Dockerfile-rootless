@@ -3,7 +3,7 @@ FROM ubuntu:jammy
 EXPOSE 5002
 
 ENV ASPNETCORE_ENVIRONMENT="Production"
-ENV ASPNETCORE_URLS="http://*:5002"
+ENV ASPNETCORE_URLS="http://*:5000"
 
 RUN \
   apt-get -y update && \
@@ -18,24 +18,28 @@ RUN \
 RUN \
   apt-get -y install aspnetcore-runtime-6.0
 
-
 RUN \
-  mkdir -p /var/www/nex-Remote && \
+  adduser --disabled-password --gecos '' -u 2001 nexremote && \
+  mkdir -p /var/www/remotely && \
   mkdir /config && \
   wget -q https://github.com/nexitpl/nex-Remote/releases/latest/download/nex-Remote_Server_Linux-x64.zip && \
   unzip -o nex-Remote_Server_Linux-x64.zip -d /var/www/nex-Remote && \
-  rm nex-Remote_Server_Linux-x64.zip
+  rm nex-Remote_Server_Linux-x64.zip && \
+  chown -R nexremote:nexremote /var/www/nex-Remote
 
 RUN \
-  mkdir -p /nexRemote-data && \
-  sed -i 's/DataSource=nexRemote.db/DataSource=\/nexRemote-data\/nexRemote.db/' /var/www/nex-Remote/appsettings.json
+  mkdir -p /nexremote-data && \
+  sed -i 's/DataSource=nex-Remote.db/DataSource=\/nexremote-data\/nex-Remote.db/' /var/www/nex-Remote/appsettings.json && \
+  chown -R nexremote:nexremote /nexremote-data
 
-VOLUME "/nexRemote-data"
+VOLUME "/nexremote-data"
 
 WORKDIR /var/www/nex-Remote
 
 COPY DockerMain.sh /
 
 RUN chmod 755 /DockerMain.sh
+
+USER nexremote
 
 ENTRYPOINT ["/DockerMain.sh"]
