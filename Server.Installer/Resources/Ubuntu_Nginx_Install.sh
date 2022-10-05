@@ -15,7 +15,7 @@ do
 done
 
 if [ -z "$AppRoot" ]; then
-    read -p "Enter path where the nex-Remote server files should be installed (typically /var/www/nex-Remote): " AppRoot
+    read -p "Enter path where the nex-Remote server files should bea installed (typically /var/www/nex-Remote): " AppRoot
     if [ -z "$AppRoot" ]; then
         AppRoot="/var/www/nex-Remote"
     fi
@@ -29,20 +29,27 @@ chmod +x "$AppRoot/nex-Remote_Server"
 
 echo "Using $AppRoot as the nex-Remote website's content directory."
 
-UbuntuVersion=$(lsb_release -r -s)
 
 apt-get -y install curl
 apt-get -y install software-properties-common
 apt-get -y install gnupg
 
+UbuntuVersion=$(lsb_release -r -s)
+UbuntuVersionInt=$(("${UbuntuVersion/./}"))
+
 # Install .NET Core Runtime.
-wget -q https://packages.microsoft.com/config/ubuntu/$UbuntuVersion/packages-microsoft-prod.deb
-dpkg -i packages-microsoft-prod.deb
-add-apt-repository universe
-apt-get update
-apt-get -y install apt-transport-https
-apt-get -y install aspnetcore-runtime-5.0
-rm packages-microsoft-prod.deb
+if [ $UbuntuVersionInt -ge 2204 ]; then
+    apt-get install -y aspnetcore-runtime-6.0
+else
+    wget -q https://packages.microsoft.com/config/ubuntu/$UbuntuVersion/packages-microsoft-prod.deb
+    dpkg -i packages-microsoft-prod.deb
+    add-apt-repository universe
+    apt-get update
+    apt-get -y install apt-transport-https
+    apt-get -y install aspnetcore-runtime-6.0
+    rm packages-microsoft-prod.deb
+fi
+
 
 
  # Install other prerequisites.
@@ -72,7 +79,7 @@ server {
     listen        80;
     server_name   $HostName *.$HostName;
     location / {
-        proxy_pass         http://localhost:5000;
+        proxy_pass         http://localhost:5002;
         proxy_http_version 1.1;
         proxy_set_header   Upgrade \$http_upgrade;
         proxy_set_header   Connection keep-alive;
@@ -83,7 +90,7 @@ server {
     }
 
     location /_blazor {	
-        proxy_pass http://localhost:5000;	
+        proxy_pass http://localhost:5002;	
         proxy_http_version 1.1;	
         proxy_set_header Upgrade \$http_upgrade;	
         proxy_set_header Connection \"upgrade\";	
@@ -93,7 +100,7 @@ server {
         proxy_set_header   X-Forwarded-Proto \$scheme;	
     }	
     location /AgentHub {	
-        proxy_pass http://localhost:5000;	
+        proxy_pass http://localhost:5002;	
         proxy_http_version 1.1;	
         proxy_set_header Upgrade \$http_upgrade;	
         proxy_set_header Connection \"upgrade\";	
@@ -103,7 +110,7 @@ server {
         proxy_set_header   X-Forwarded-Proto \$scheme;	
     }	
     location /ViewerHub {	
-        proxy_pass http://localhost:5000;	
+        proxy_pass http://localhost:5002;	
         proxy_http_version 1.1;	
         proxy_set_header Upgrade \$http_upgrade;	
         proxy_set_header Connection \"upgrade\";	
@@ -113,7 +120,7 @@ server {
         proxy_set_header   X-Forwarded-Proto \$scheme;	
     }	
     location /CasterHub {	
-        proxy_pass http://localhost:5000;	
+        proxy_pass http://localhost:5002;	
         proxy_http_version 1.1;	
         proxy_set_header Upgrade \$http_upgrade;	
         proxy_set_header Connection \"upgrade\";	
