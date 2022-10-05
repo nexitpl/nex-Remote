@@ -52,8 +52,8 @@ namespace nexRemote.Agent.Services
                 return new ConnectionInfo()
                 {
                     DeviceID = deviceID,
-                    Host = "https://remote.nex-it.pl",
-                    OrganizationID = "e979e953-375f-4373-802f-655fb63aeb0c"
+                    Host = hostName,
+                    OrganizationID = orgID
                 };
             }
 
@@ -62,8 +62,8 @@ namespace nexRemote.Agent.Services
                 return new ConnectionInfo()
                 {
                     DeviceID = _debugGuid,
-                    Host = "https://192.168.2.42:5002",
-                    OrganizationID = "e979e953-375f-4373-802f-655fb63aeb0c"
+                    Host = "https://localhost:5000",
+                    OrganizationID = orgID
                 };
             }
 

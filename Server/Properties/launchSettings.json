@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Production"
       },
       "dotnetRunMessages": "true",
-      "applicationUrl": "https://192.168.2.42:5002;https://remote.nex-it.pl:5002;https://5.185.41.99:5002"
+      "applicationUrl": "http://localhost:5000;https://localhost:5001"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -29,7 +29,7 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {
-        "ASPNETCORE_URLS": "http://*:5002"
+        "ASPNETCORE_URLS": "http://*:5000"
       },
       "publishAllPorts": true,
       "useSSL": true
