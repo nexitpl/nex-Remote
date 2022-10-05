@@ -63,7 +63,7 @@ apt install caddy
 # Configure Caddy
 caddyConfig="
 $HostName {
-    reverse_proxy 127.0.0.1:5000
+    reverse_proxy 127.0.0.1:5002
 }
 "
 

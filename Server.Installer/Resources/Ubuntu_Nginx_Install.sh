@@ -79,7 +79,7 @@ server {
     listen        80;
     server_name   $HostName *.$HostName;
     location / {
-        proxy_pass         http://localhost:5000;
+        proxy_pass         http://localhost:5002;
         proxy_http_version 1.1;
         proxy_set_header   Upgrade \$http_upgrade;
         proxy_set_header   Connection keep-alive;
@@ -90,7 +90,7 @@ server {
     }
 
     location /_blazor {	
-        proxy_pass http://localhost:5000;	
+        proxy_pass http://localhost:5002;	
         proxy_http_version 1.1;	
         proxy_set_header Upgrade \$http_upgrade;	
         proxy_set_header Connection \"upgrade\";	
@@ -100,7 +100,7 @@ server {
         proxy_set_header   X-Forwarded-Proto \$scheme;	
     }	
     location /AgentHub {	
-        proxy_pass http://localhost:5000;	
+        proxy_pass http://localhost:5002;	
         proxy_http_version 1.1;	
         proxy_set_header Upgrade \$http_upgrade;	
         proxy_set_header Connection \"upgrade\";	
@@ -110,7 +110,7 @@ server {
         proxy_set_header   X-Forwarded-Proto \$scheme;	
     }	
     location /ViewerHub {	
-        proxy_pass http://localhost:5000;	
+        proxy_pass http://localhost:5002;	
         proxy_http_version 1.1;	
         proxy_set_header Upgrade \$http_upgrade;	
         proxy_set_header Connection \"upgrade\";	
@@ -120,7 +120,7 @@ server {
         proxy_set_header   X-Forwarded-Proto \$scheme;	
     }	
     location /CasterHub {	
-        proxy_pass http://localhost:5000;	
+        proxy_pass http://localhost:5002;	
         proxy_http_version 1.1;	
         proxy_set_header Upgrade \$http_upgrade;	
         proxy_set_header Connection \"upgrade\";	

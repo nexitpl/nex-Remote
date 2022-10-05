@@ -62,7 +62,7 @@ namespace nexRemote.Agent.Services
                 return new ConnectionInfo()
                 {
                     DeviceID = _debugGuid,
-                    Host = "https://localhost:5000",
+                    Host = "https://localhost:5002",
                     OrganizationID = orgID
                 };
             }
