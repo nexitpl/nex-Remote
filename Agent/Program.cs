@@ -42,6 +42,7 @@ namespace nexRemote.Agent
         private static void BuildServices()
         {
             var serviceCollection = new ServiceCollection();
+            serviceCollection.AddHttpClient();
             serviceCollection.AddLogging(builder =>
             {
                 builder.AddConsole().AddDebug();
@@ -54,7 +55,7 @@ namespace nexRemote.Agent
             serviceCollection.AddScoped<Uninstaller>();
             serviceCollection.AddScoped<ScriptExecutor>();
             serviceCollection.AddScoped<IProcessInvoker, ProcessInvoker>();
-            serviceCollection.AddScoped<IUpdateDownloader, IUpdateDownloader>();
+            serviceCollection.AddScoped<IUpdateDownloader, UpdateDownloader>();
 
             if (EnvironmentHelper.IsWindows)
             {

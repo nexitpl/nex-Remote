@@ -1,5 +1,4 @@
 ﻿using nexRemote.Agent.Interfaces;
-using nexRemote.Agent.Services;
 using nexRemote.Shared.Utilities;
 using System;
 using System.Diagnostics;
@@ -23,7 +22,7 @@ namespace nexRemote.Agent.Services
         private DateTimeOffset _lastUpdateFailure;
 
 
-        public UpdaterWin(ConfigService configService, IUpdateDownloader updateDownloader, IHttpClientFactory httpClientFactory)
+        public UpdaterWin(ConfigService configService, UpdateDownloader updateDownloader, IHttpClientFactory httpClientFactory)
         {
             _configService = configService;
             _updateDownloader = updateDownloader;

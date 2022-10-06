@@ -28,7 +28,7 @@ namespace nexRemote.Agent.Services
         private DateTimeOffset _lastUpdateFailure;
         private readonly System.Timers.Timer _updateTimer = new(TimeSpan.FromHours(6).TotalMilliseconds);
 
-        public UpdaterMac(ConfigService configService, IUpdateDownloader updateDownloader, IHttpClientFactory httpClientFactory)
+        public UpdaterMac(ConfigService configService, UpdateDownloader updateDownloader, IHttpClientFactory httpClientFactory)
         {
             _configService = configService;
             _httpClientFactory = httpClientFactory;

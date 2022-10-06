@@ -27,7 +27,7 @@ namespace nexRemote.Agent.Services
         private readonly System.Timers.Timer _updateTimer = new(TimeSpan.FromHours(6).TotalMilliseconds);
         private DateTimeOffset _lastUpdateFailure;
 
-        public UpdaterLinux(ConfigService configService, IUpdateDownloader updateDownloader, IHttpClientFactory httpClientFactory)
+        public UpdaterLinux(ConfigService configService, UpdateDownloader updateDownloader, IHttpClientFactory httpClientFactory)
         {
             _configService = configService;
             _updateDownloader = updateDownloader;
