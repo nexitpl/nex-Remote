@@ -17,7 +17,7 @@ done
 if [ -z "$AppRoot" ]; then
     read -p "Podaj œcie¿kê, w której powinny zostaæ zainstalowane pliki serwera nex-Remote (zazwyczaj /var/www/nex-Remote): " AppRoot
     if [ -z "$AppRoot" ]; then
-        AppRoot="/var/www/nex-Remote"
+        AppRoot="/var/www/nex-Remote/"
     fi
 fi
 

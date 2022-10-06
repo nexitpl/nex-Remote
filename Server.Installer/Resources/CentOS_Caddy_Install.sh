@@ -88,13 +88,13 @@ Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 [Install]
 WantedBy=multi-user.target"
 
-echo "$serviceConfig" > /etc/systemd/system/nexremote.service
+echo "$serviceConfig" > /etc/systemd/system/nex-Remote.service
 
 
 # Enable service.
-systemctl enable nexremote.service
+systemctl enable nex-Remote.service
 # Start service.
-systemctl restart nexremote.service
+systemctl restart nex-Remote.service
 
 
 # Restart caddy

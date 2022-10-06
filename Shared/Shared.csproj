@@ -6,6 +6,7 @@
 		<AssemblyName>nex-Remote_Shared</AssemblyName>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<RootNamespace>nexRemote.Shared</RootNamespace>
+		<PlatformTarget>AnyCPU</PlatformTarget>
 	</PropertyGroup>
 
 	<ItemGroup>
