@@ -67,7 +67,7 @@ nginxConfig="server {
     listen        80;
     server_name   $HostName *.$HostName;
     location / {
-        proxy_pass         http://localhost:5002;
+        proxy_pass         http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header   Upgrade \$http_upgrade;
         proxy_set_header   Connection close;
@@ -78,7 +78,7 @@ nginxConfig="server {
     }
 
     location /_blazor {
-        proxy_pass http://localhost:5002;
+        proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \"Upgrade\";
@@ -86,7 +86,7 @@ nginxConfig="server {
         proxy_cache_bypass \$http_upgrade;
     }
     location /AgentHub {
-        proxy_pass http://localhost:5002;
+        proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \"Upgrade\";
@@ -95,7 +95,7 @@ nginxConfig="server {
     }
 
     location /ViewerHub {
-        proxy_pass http://localhost:5002;
+        proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \"Upgrade\";
@@ -103,7 +103,7 @@ nginxConfig="server {
         proxy_cache_bypass \$http_upgrade;
     }
     location /CasterHub {
-        proxy_pass http://localhost:5002;
+        proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \"Upgrade\";

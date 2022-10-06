@@ -1,9 +1,9 @@
 FROM ubuntu:jammy
 
-EXPOSE 5002
+EXPOSE 5000
 
 ENV ASPNETCORE_ENVIRONMENT="Production"
-ENV ASPNETCORE_URLS="http://*:5002"
+ENV ASPNETCORE_URLS="http://*:5000"
 
 RUN \
   apt-get -y update && \
