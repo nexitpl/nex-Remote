@@ -20,7 +20,7 @@ RUN \
 
 RUN \
   adduser --disabled-password --gecos '' -u 2001 nexremote && \
-  mkdir -p /var/www/nex-remote && \
+  mkdir -p /var/www/nex-Remote && \
   mkdir /config && \
   wget -q https://github.com/nexitpl/nex-Remote/releases/latest/download/nex-Remote_Server_Linux-x64.zip && \
   unzip -o nex-Remote_Server_Linux-x64.zip -d /var/www/nex-Remote && \
