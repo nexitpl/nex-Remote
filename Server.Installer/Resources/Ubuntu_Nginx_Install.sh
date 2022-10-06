@@ -76,8 +76,12 @@ systemctl start nginx
 nginxConfig="
 
 server {
-    listen        80;
+    listen 443;
+    ssl on;
+    ssl_certificate /etc/ssl/certs/remote.nex-it.pl.crt;
+    ssl_certificate_key /etc/ssl/private/remote.nex-it.pl.key;
     server_name   $HostName *.$HostName;
+    
     location / {
         proxy_pass         http://localhost:5000;
         proxy_http_version 1.1;
