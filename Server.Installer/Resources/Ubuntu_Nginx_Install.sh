@@ -131,9 +131,9 @@ server {
     }
 }"
 
-echo "$nginxConfig" > /etc/nginx/sites-available/nexRemote
+echo "$nginxConfig" > /etc/nginx/sites-available/nex-Remote
 
-ln -s /etc/nginx/sites-available/nexRemote /etc/nginx/sites-enabled/nexRemote
+ln -s /etc/nginx/sites-available/nex-Remote /etc/nginx/sites-enabled/nex-Remote
 
 # Test config.
 nginx -t
