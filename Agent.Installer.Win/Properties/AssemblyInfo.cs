@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("nex-IT Jakub Potoczny")]
 [assembly: AssemblyProduct("nex-Remote Instalator")]
-[assembly: AssemblyCopyright("nex-IT Jakub Potoczny")]
+[assembly: AssemblyCopyright("nex-IT Jakub Potoczny 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

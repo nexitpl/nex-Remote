@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
-using nexRemote.Server.Data;
 using Npgsql;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using nexRemote.Server.Data;
 using nexRemote.Server.Services;
 using System;
 
