@@ -22,7 +22,7 @@ namespace nexRemote.Agent.Services
         private DateTimeOffset _lastUpdateFailure;
 
 
-        public UpdaterWin(ConfigService configService, UpdateDownloader updateDownloader, IHttpClientFactory httpClientFactory)
+        public UpdaterWin(ConfigService configService, IUpdateDownloader updateDownloader, IHttpClientFactory httpClientFactory)
         {
             _configService = configService;
             _updateDownloader = updateDownloader;
