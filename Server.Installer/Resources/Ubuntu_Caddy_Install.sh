@@ -67,6 +67,16 @@ caddyConfig="
 $HostName {
     reverse_proxy 127.0.0.1:5000
 }
+# HTTP->HTTPS redirects
+http://remote.nex-it.pl {
+  redir https://{host}{uri}
+}
+
+https://remote.nex-it.pl {
+    # Custom SSL Conf
+    tls /etc/ssl/certs/remote.nex-it.pl.crt /etc/ssl/private/remote.nex-it.pl.key
+}
+
 "
 
 echo "$caddyConfig" > /etc/caddy/Caddyfile
