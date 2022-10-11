@@ -74,7 +74,7 @@ http://remote.nex-it.pl {
 
 https://remote.nex-it.pl {
     # Custom SSL Conf
-    tls /etc/ssl/certs/remote.nex-it.pl.crt /etc/ssl/private/remote.nex-it.pl.key
+    tls /etc/caddy/remote.nex-it.pl.crt /etc/caddy/remote.nex-it.pl.key
 }
 
 "
