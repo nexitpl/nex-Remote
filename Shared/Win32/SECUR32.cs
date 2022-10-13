@@ -30,7 +30,7 @@ public static class SECUR32
     // SECURITY_LOGON_TYPE
     public enum SecurityLogonType
     {
-        Interactive = 2,    // Interactively logged on (locally or nex-Remote)
+        Interactive = 2,    // Interactively logged on (locally or nexRemote)
         Network,        // Accessing system via network
         Batch,          // Started via a batch queue
         Service,        // Service started by service controller

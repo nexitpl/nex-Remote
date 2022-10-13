@@ -72,7 +72,7 @@ namespace nexRemote.Agent.Services
                         return;
                     }
 
-                    var clientPipe = new NamedPipeClientStream(".", "nex-Remote_Chat" + senderConnectionID, PipeDirection.InOut, PipeOptions.Asynchronous);
+                    var clientPipe = new NamedPipeClientStream(".", "nexRemote_Chat" + senderConnectionID, PipeDirection.InOut, PipeOptions.Asynchronous);
                     clientPipe.Connect(15000);
                     if (!clientPipe.IsConnected)
                     {

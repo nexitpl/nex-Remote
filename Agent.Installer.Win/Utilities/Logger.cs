@@ -6,7 +6,7 @@ namespace nexRemote.Agent.Installer.Win.Utilities
 {
     public class Logger
     {
-        private static string LogPath => Path.Combine(Path.GetTempPath(), "nex-Remote_Installer.log");
+        private static string LogPath => Path.Combine(Path.GetTempPath(), "nexRemote_Installer.log");
         private static object WriteLock { get; } = new object();
         public static void Debug(string message)
         {

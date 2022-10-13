@@ -13,10 +13,10 @@ namespace nexRemote.Shared.Utilities
                 switch (Platform)
                 {
                     case Platform.Windows:
-                        return "nex-Remote_Agent.exe";
+                        return "nexRemote_Agent.exe";
                     case Platform.Linux:
                     case Platform.MacOS:
-                        return "nex-Remote_Agent";
+                        return "nexRemote_Agent";
                     default:
                         throw new PlatformNotSupportedException();
                 }
@@ -30,10 +30,10 @@ namespace nexRemote.Shared.Utilities
                 switch (Platform)
                 {
                     case Platform.Windows:
-                        return "nex-Remote_Desktop.exe";
+                        return "nexRemote_Desktop.exe";
                     case Platform.Linux:
                     case Platform.MacOS:
-                        return "nex-Remote_Desktop";
+                        return "nexRemote_Desktop";
                     default:
                         throw new PlatformNotSupportedException();
                 }

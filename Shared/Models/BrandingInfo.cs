@@ -15,7 +15,7 @@ namespace nexRemote.Shared.Models
         public string Id { get; set; }
 
         [StringLength(25)]
-        public string Product { get; set; } = "nex-Remote";
+        public string Product { get; set; } = "nexRemote";
 
         public byte[] Icon { get; set; }
 

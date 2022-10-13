@@ -289,12 +289,12 @@ namespace nexRemote.Server.Pages
                 var newInvite = DataService.AddInvite(User.OrganizationID, invite);
 
                 var inviteURL = $"{NavManager.BaseUri}Invite?id={newInvite.ID}";
-                var emailResult = await EmailSender.SendEmailAsync(invite.InvitedUser, "Zaproszenie do organizacji w nex-Remote",
-                        $@"<img src='{NavManager.BaseUri}images/nex-Remote_Logo.png'/>
+                var emailResult = await EmailSender.SendEmailAsync(invite.InvitedUser, "Zaproszenie do organizacji w nexRemote",
+                        $@"<img src='{NavManager.BaseUri}images/nexRemote_Logo.png'/>
                             <br><br>
                             Witaj!
                             <br><br>
-                            Zaproszono Cię do dołączenia do organizacji w nex-Remote.
+                            Zaproszono Cię do dołączenia do organizacji w nexRemote.
                             <br><br>
                             Możesz dołączyć do organizacji przez <a href='{HtmlEncoder.Default.Encode(inviteURL)}'>clicking here</a>.",
                         User.OrganizationID);
@@ -363,7 +363,7 @@ namespace nexRemote.Server.Pages
         {
             ModalService.ShowModal("Kod", new[]
             {
-                @"Ten kod zostanie dołączony do nazw plików EXE. Gdyby nex-Remote został skompilowany
+                @"Ten kod zostanie dołączony do nazw plików EXE. Gdyby nexRemote został skompilowany
                 ze źródła i miał osadzony adres URL serwera, użyj tego kodu do zidentyfikowania organizacji."
             });
         }

@@ -3,8 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyName>nex-Remote_Installer</AssemblyName>
-    <ApplicationIcon>nex-Remote_Icon.ico</ApplicationIcon>
+    <AssemblyName>nexRemote_Installer</AssemblyName>
+    <ApplicationIcon>nexRemote_Icon.ico</ApplicationIcon>
     <RootNamespace>nexRemote.Server.Installer</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>

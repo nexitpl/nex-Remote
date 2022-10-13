@@ -119,11 +119,11 @@ namespace nexRemote.Desktop.Win.ViewModels
                         var filePath = sections.First();
                         var arguments = string.Join('"', sections.Skip(1));
                         Logger.Write($"Tworzenie tymczasowej usługi ze ścieżką do pliku {filePath} i argumenty {arguments}.");
-                        psi.Arguments = $"/c sc create nex-Remote binPath=\"{filePath} {arguments} -elevate\"";
+                        psi.Arguments = $"/c sc create nexRemote binPath=\"{filePath} {arguments} -elevate\"";
                         Process.Start(psi).WaitForExit();
-                        psi.Arguments = "/c sc start nex-Remote_Temp";
+                        psi.Arguments = "/c sc start nexRemote_Temp";
                         Process.Start(psi).WaitForExit();
-                        psi.Arguments = "/c sc delete nex-Remote_Temp";
+                        psi.Arguments = "/c sc delete nexRemote_Temp";
                         Process.Start(psi).WaitForExit();
                         App.Current.Shutdown();
                     }

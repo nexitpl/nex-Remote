@@ -45,7 +45,7 @@ namespace nexRemote.Desktop.Win.ViewModels
 
             var ofd = new OpenFileDialog()
             {
-                Title = "Transfer Plików via nex-Remote",
+                Title = "Transfer Plików via nexRemote",
                 Multiselect = true,
                 CheckFileExists = true,
                 InitialDirectory = Directory.Exists(userDir) ? userDir : rootDir

@@ -3,10 +3,10 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<RootNamespace>nexRemote.Desktop.Core</RootNamespace>
-		<AssemblyName>nex-Remote_Desktop.Core</AssemblyName>
+		<AssemblyName>nexRemote_Desktop.Core</AssemblyName>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<SignAssembly>false</SignAssembly>
-		<AssemblyOriginatorKeyFile>nex-Remote.pfx</AssemblyOriginatorKeyFile>
+		<AssemblyOriginatorKeyFile>nexRemote.pfx</AssemblyOriginatorKeyFile>
 		<PlatformTarget>AnyCPU</PlatformTarget>
 	</PropertyGroup>
 
@@ -35,11 +35,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Assets\nex-Remote_Icon.png" />
+		<None Remove="Assets\nexRemote_Icon.png" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="Assets\nex-Remote_Icon.png" />
+		<EmbeddedResource Include="Assets\nexRemote_Icon.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -61,7 +61,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Resource Include="Assets\nex-Remote_Icon.png" />
+		<Resource Include="Assets\nexRemote_Icon.png" />
 	</ItemGroup>
 
 </Project>

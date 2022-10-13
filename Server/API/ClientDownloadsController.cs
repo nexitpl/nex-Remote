@@ -37,27 +37,27 @@ namespace nexRemote.Server.API
             {
                 case "WindowsDesktop-x64":
                     {
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Win-x64", "nex-Remote_Desktop.exe");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Win-x64", "nexRemote_Desktop.exe");
                         return await GetDesktopFile(filePath);
                     }
                 case "WindowsDesktop-x86":
                     {
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Win-x86", "nex-Remote_Desktop.exe");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Win-x86", "nexRemote_Desktop.exe");
                         return await GetDesktopFile(filePath);
                     }
                 case "UbuntuDesktop":
                     {
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Linux-x64", "nex-Remote_Desktop");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Linux-x64", "nexRemote_Desktop");
                         return await GetDesktopFile(filePath);
                     }
                 case "MacOS-x64":
                     {
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "MacOS-x64", "nex-Remote_Desktop");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "MacOS-x64", "nexRemote_Desktop");
                         return await GetDesktopFile(filePath);
                     }
                 case "MacOS-arm64":
                     {
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "MacOS-arm64", "nex-Remote_Desktop");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "MacOS-arm64", "nexRemote_Desktop");
                         return await GetDesktopFile(filePath);
                     }
                 default:
@@ -73,27 +73,27 @@ namespace nexRemote.Server.API
             {
                 case "WindowsDesktop-x64":
                     {
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Win-x64", "nex-Remote_Desktop.exe");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Win-x64", "nexRemote_Desktop.exe");
                         return await GetDesktopFile(filePath, organizationId);
                     }
                 case "WindowsDesktop-x86":
                     {
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Win-x86", "nex-Remote_Desktop.exe");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Win-x86", "nexRemote_Desktop.exe");
                         return await GetDesktopFile(filePath, organizationId);
                     }
                 case "UbuntuDesktop":
                     {
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Linux-x64", "nex-Remote_Desktop");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Linux-x64", "nexRemote_Desktop");
                         return await GetDesktopFile(filePath, organizationId);
                     }
                 case "MacOS-x64":
                     {
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "MacOS-x64", "nex-Remote_Desktop");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "MacOS-x64", "nexRemote_Desktop");
                         return await GetDesktopFile(filePath);
                     }
                 case "MacOS-arm64":
                     {
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "MacOS-arm64", "nex-Remote_Desktop");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "MacOS-arm64", "nexRemote_Desktop");
                         return await GetDesktopFile(filePath);
                     }
                 default:
@@ -170,11 +170,11 @@ namespace nexRemote.Server.API
                     {
                         case "WindowsInstaller":
                             {
-                                var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "nex-Remote_Installer.exe");
+                                var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "nexRemote_Installer.exe");
                                 var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
                                 var organization = _dataService.GetOrganizationById(organizationId);
                                 var relayCode = organization.RelayCode;
-                                return File(fs, "application/octet-stream", $"nex-Remote_Install-[{relayCode}].exe");
+                                return File(fs, "application/octet-stream", $"nexRemote_Install-[{relayCode}].exe");
                             }
                         // TODO: Remove after a few releases.
                         case "Manjaro-x64":

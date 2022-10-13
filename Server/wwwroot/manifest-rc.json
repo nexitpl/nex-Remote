@@ -1,7 +1,7 @@
 {
-  "id": "nex-Remote Remote Control",
-  "name": "nex-Remote Pomoc Zdalna",
-  "short_name": "nex-Remote Pomoc Zdalna",
+  "id": "nexRemote Remote Control",
+  "name": "nexRemote Pomoc Zdalna",
+  "short_name": "nexRemote Pomoc Zdalna",
   "start_url": "./remotecontrol",
   "display": "standalone",
   "background_color": "black",
@@ -10,12 +10,12 @@
   "description": "nex-IT Remote Support System.",
   "icons": [
     {
-      "src": "./images/nex-Remote_Icon_128.png",
+      "src": "./images/nexRemote_Icon_128.png",
       "sizes": "128x128",
       "type": "image/png"
     },
     {
-      "src": "./images/nex-Remote_Icon_512.png",
+      "src": "./images/nexRemote_Icon_512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

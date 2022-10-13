@@ -13,7 +13,7 @@ namespace nexRemote.Server.Data
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseInMemoryDatabase("nex-Remote");
+            options.UseInMemoryDatabase("nexRemote");
             base.OnConfiguring(options);
         }
     }

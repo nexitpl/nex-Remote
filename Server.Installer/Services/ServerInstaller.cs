@@ -31,15 +31,15 @@ namespace Server.Installer.Services
 
         public async Task PerformInstall(CliParams cliParams)
         {
-            var zipPath = Path.Combine(Path.GetTempPath(), "nex-Remote_Server.zip");
+            var zipPath = Path.Combine(Path.GetTempPath(), "nexRemote_Server.zip");
 
             if (cliParams.UsePrebuiltPackage == true)
             {
                 ConsoleHelper.WriteLine("Downloading pre-built server package.");
 
                 var releaseFile = cliParams.WebServer == WebServerType.IisWindows ?
-                    "https://github.com/nexitpl/nex-Remote/releases/latest/download/nex-Remote_Server_Win-x64.zip" :
-                    "https://github.com/nexitpl/nex-Remote/releases/latest/download/nex-Remote_Server_Linux-x64.zip";
+                    "https://github.com/nexitpl/nexRemote/releases/latest/download/nexRemote_Server_Win-x64.zip" :
+                    "https://github.com/nexitpl/nexRemote/releases/latest/download/nexRemote_Server_Linux-x64.zip";
 
                 using var httpClient = new HttpClient();
                 var response = await httpClient.GetAsync(releaseFile);
@@ -82,7 +82,7 @@ namespace Server.Installer.Services
                     if (!dispatchResult)
                     {
                         ConsoleHelper.WriteError("GitHub API call to trigger build action failed.  Do you have " +
-                            "Actions enabled on your forked nex-Remote repo on the Actions tab?  If not, enable them and try again. " +
+                            "Actions enabled on your forked nexRemote repo on the Actions tab?  If not, enable them and try again. " +
                             "Otherwise, please check your input parameters.");
                         return;
                     }
@@ -119,8 +119,8 @@ namespace Server.Installer.Services
                 var w3wpProcs = Process.GetProcessesByName("w3wp");
                 if (w3wpProcs.Length > 0)
                 {
-                    Process.Start("powershell.exe", "-Command & \"{ Stop-WebAppPool -Name nex-Remote -ErrorAction SilentlyContinue }\"").WaitForExit();
-                    Process.Start("powershell.exe", "-Command & \"{ Stop-Website -Name nex-Remote -ErrorAction SilentlyContinue }\"").WaitForExit();
+                    Process.Start("powershell.exe", "-Command & \"{ Stop-WebAppPool -Name nexRemote -ErrorAction SilentlyContinue }\"").WaitForExit();
+                    Process.Start("powershell.exe", "-Command & \"{ Stop-Website -Name nexRemote -ErrorAction SilentlyContinue }\"").WaitForExit();
 
                     ConsoleHelper.WriteLine("Waiting for w3wp processes to close...");
                     foreach (var proc in w3wpProcs)
@@ -171,7 +171,7 @@ namespace Server.Installer.Services
             {
                 psi = new ProcessStartInfo("powershell.exe")
                 {
-                    Arguments = $"-f \"{filePath}\" -AppPoolName nex-Remote -SiteName nex-Remote " +
+                    Arguments = $"-f \"{filePath}\" -AppPoolName nexRemote -SiteName nexRemote " +
                         $"-SitePath \"{cliParams.InstallDirectory}\" -HostName {cliParams.ServerUrl.Authority} -Quiet",
                     WorkingDirectory = cliParams.InstallDirectory
                 };

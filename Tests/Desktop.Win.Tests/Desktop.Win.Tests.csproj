@@ -9,7 +9,7 @@
 
     <RootNamespace>nexRemote.Desktop.Win.Tests</RootNamespace>
 
-    <AssemblyName>nex-Remote.Desktop.Win.Tests</AssemblyName>
+    <AssemblyName>nexRemote.Desktop.Win.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

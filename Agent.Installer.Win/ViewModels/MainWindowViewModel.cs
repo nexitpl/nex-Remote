@@ -117,7 +117,7 @@ namespace nexRemote.Agent.Installer.Win.ViewModels
             {
                 return new Executor(param =>
                 {
-                    var logPath = Path.Combine(Path.GetTempPath(), "nex-Remote_Installer.log");
+                    var logPath = Path.Combine(Path.GetTempPath(), "nexRemote_Installer.log");
                     if (File.Exists(logPath))
                     {
                         Process.Start(logPath);
@@ -205,7 +205,7 @@ namespace nexRemote.Agent.Installer.Win.ViewModels
                 Progress = arg;
             };
 
-            IsServiceInstalled = ServiceController.GetServices().Any(x => x.ServiceName == "nex-Remote_Service");
+            IsServiceInstalled = ServiceController.GetServices().Any(x => x.ServiceName == "nexRemote_Service");
             if (IsServiceMissing)
             {
                 HeaderMessage = $"Instalacja us³ugi {ProductName} .";
@@ -239,7 +239,7 @@ namespace nexRemote.Agent.Installer.Win.ViewModels
                 var connectionInfoPath = Path.Combine(
                Path.GetPathRoot(Environment.SystemDirectory),
                    "Program Files",
-                   "nex-Remote",
+                   "nexRemote",
                    "ConnectionInfo.json");
 
                 if (File.Exists(connectionInfoPath))
@@ -269,7 +269,7 @@ namespace nexRemote.Agent.Installer.Win.ViewModels
         {
             try
             {
-                ProductName = "nex-Remote";
+                ProductName = "nexRemote";
 
                 if (!string.IsNullOrWhiteSpace(brandingInfo?.Product))
                 {
@@ -447,7 +447,7 @@ namespace nexRemote.Agent.Installer.Win.ViewModels
             }
             else
             {
-                imageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("nexRemote.Agent.Installer.Win.Assets.nex-Remote_Icon.png");
+                imageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("nexRemote.Agent.Installer.Win.Assets.nexRemote_Icon.png");
             }
 
             var bitmap = new BitmapImage();
@@ -470,14 +470,14 @@ namespace nexRemote.Agent.Installer.Win.ViewModels
                     return;
                 }
 
-                HeaderMessage = "Installing nex-Remote...";
+                HeaderMessage = "Installing nexRemote...";
 
                 if (await Installer.Install(ServerUrl, OrganizationID, DeviceGroup, DeviceAlias, DeviceUuid, CreateSupportShortcut))
                 {
                     IsServiceInstalled = true;
                     Progress = 0;
                     HeaderMessage = "Instalacja zakoñczona.";
-                    StatusMessage = "nex-Remote zosta³ zainstalowany.  Mo¿esz teraz zamkn¹æ to okno.";
+                    StatusMessage = "nexRemote zosta³ zainstalowany.  Mo¿esz teraz zamkn¹æ to okno.";
                 }
                 else
                 {
@@ -506,14 +506,14 @@ namespace nexRemote.Agent.Installer.Win.ViewModels
             {
                 IsReadyState = false;
 
-                HeaderMessage = "Odinstalowywanie nex-Remote...";
+                HeaderMessage = "Odinstalowywanie nexRemote...";
 
                 if (await Installer.Uninstall())
                 {
                     IsServiceInstalled = false;
                     Progress = 0;
                     HeaderMessage = "Dezinstalacja zakoñczona.";
-                    StatusMessage = "nex-Remote zosta³ odinstalowany.  Mo¿esz teraz zamkn¹æ to okno.";
+                    StatusMessage = "nexRemote zosta³ odinstalowany.  Mo¿esz teraz zamkn¹æ to okno.";
                 }
                 else
                 {

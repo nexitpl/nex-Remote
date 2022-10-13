@@ -12,7 +12,7 @@ namespace nexRemote.Agent.Services
         {
             if (EnvironmentHelper.IsWindows)
             {
-                Process.Start("cmd.exe", "/c sc delete nex-Remote_Service");
+                Process.Start("cmd.exe", "/c sc delete nexRemote_Service");
 
                 var view = Environment.Is64BitOperatingSystem ?
                     "/reg:64" :
@@ -25,9 +25,9 @@ namespace nexRemote.Agent.Services
             }
             else if (EnvironmentHelper.IsLinux)
             {
-                Process.Start("sudo", "systemctl stop nex-Remote-agent").WaitForExit();
+                Process.Start("sudo", "systemctl stop nexRemote-agent").WaitForExit();
                 Directory.Delete("/usr/local/bin/nexRemote", true);
-                File.Delete("/etc/systemd/system/nex-Remote-agent.service");
+                File.Delete("/etc/systemd/system/nexRemote-agent.service");
                 Process.Start("sudo", "systemctl daemon-reload").WaitForExit();
             }
             Environment.Exit(0);

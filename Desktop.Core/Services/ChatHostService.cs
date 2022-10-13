@@ -28,7 +28,7 @@ namespace nexRemote.Desktop.Core.Services
 
         public async Task StartChat(string requesterID, string organizationName)
         {
-            NamedPipeStream = new NamedPipeServerStream("nex-Remote_Chat" + requesterID, PipeDirection.InOut, 10, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            NamedPipeStream = new NamedPipeServerStream("nexRemote_Chat" + requesterID, PipeDirection.InOut, 10, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
             Writer = new StreamWriter(NamedPipeStream);
             Reader = new StreamReader(NamedPipeStream);
 

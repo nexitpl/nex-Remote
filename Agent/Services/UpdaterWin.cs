@@ -67,7 +67,7 @@ namespace nexRemote.Agent.Services
                 var serverUrl = _configService.GetConnectionInfo().Host;
 
                 var platform = Environment.Is64BitOperatingSystem ? "x64" : "x86";
-                var fileUrl = serverUrl + $"/Content/nex-Remote-Win10-{platform}.zip";
+                var fileUrl = serverUrl + $"/Content/nexRemote-Win10-{platform}.zip";
 
                 using var httpClient = _httpClientFactory.CreateClient();
                 using var request = new HttpRequestMessage(HttpMethod.Head, fileUrl);
@@ -122,13 +122,13 @@ namespace nexRemote.Agent.Services
                 Logger.Write("Service Updater: Downloading install package.");
 
                 var downloadId = Guid.NewGuid().ToString();
-                var zipPath = Path.Combine(Path.GetTempPath(), "nex-RemoteUpdate.zip");
+                var zipPath = Path.Combine(Path.GetTempPath(), "nexRemoteUpdate.zip");
 
-                var installerPath = Path.Combine(Path.GetTempPath(), "nex-Remote_Installer.exe");
+                var installerPath = Path.Combine(Path.GetTempPath(), "nexRemote_Installer.exe");
                 var platform = Environment.Is64BitOperatingSystem ? "x64" : "x86";
 
                 await _updateDownloader.DownloadFile(
-                     $"{serverUrl}/Content/nex-Remote_Installer.exe",
+                     $"{serverUrl}/Content/nexRemote_Installer.exe",
                      installerPath);
 
                 await _updateDownloader.DownloadFile(
@@ -138,7 +138,7 @@ namespace nexRemote.Agent.Services
                 using var httpClient = _httpClientFactory.CreateClient();
                 using var response = httpClient.GetAsync($"{serverUrl}/api/AgentUpdate/ClearDownload/{downloadId}");
 
-                foreach (var proc in Process.GetProcessesByName("nex-Remote_Installer"))
+                foreach (var proc in Process.GetProcessesByName("nexRemote_Installer"))
                 {
                     proc.Kill();
                 }

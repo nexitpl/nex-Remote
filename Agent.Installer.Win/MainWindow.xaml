@@ -12,7 +12,7 @@
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
         Loaded="Window_Loaded"
         WindowStartupLocation="CenterScreen"
-        Title="nex-Remote Installer" Height="335" Width="500"  Icon="{Binding Icon}">
+        Title="nexRemote Installer" Height="335" Width="500"  Icon="{Binding Icon}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Window.Resources>
@@ -29,8 +29,8 @@
         <Border Height="50">
             <DockPanel Margin="10,0,0,0">
                 <DockPanel>
-                    <Image Height="50" Width="50"  Margin="0,0,10,0" Source="Assets/nex-Remote_Icon.png"/>
-                    <TextBlock Foreground="{Binding TitleForegroundColor}" FontWeight="Bold" FontSize="20" VerticalAlignment="Center" Text="nex-Remote Instalator"/>
+                    <Image Height="50" Width="50"  Margin="0,0,10,0" Source="Assets/nexRemote_Icon.png"/>
+                    <TextBlock Foreground="{Binding TitleForegroundColor}" FontWeight="Bold" FontSize="20" VerticalAlignment="Center" Text="nexRemote Instalator"/>
                 </DockPanel>
                 <Button Style="{StaticResource TitlebarButton}" Click="CloseButton_Click" Content="X" Background="Black" />
                 <Button Style="{StaticResource TitlebarButton}" Click="MinimizeButton_Click" Content="____" Background="Black" Foreground="White"/>
@@ -39,7 +39,7 @@
         <Grid Grid.Row="1" Margin="10,15,10,0">
 
             <StackPanel>
-                <TextBlock Style="{StaticResource SectionHeader}" Text="Zainstaluj nex-Remote" Margin="0,0,0,10" Foreground="White"></TextBlock>
+                <TextBlock Style="{StaticResource SectionHeader}" Text="Zainstaluj nexRemote" Margin="0,0,0,10" Foreground="White"></TextBlock>
                 <Grid Margin="25,5,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />

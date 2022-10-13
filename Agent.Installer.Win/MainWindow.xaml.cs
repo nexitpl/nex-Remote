@@ -46,7 +46,7 @@ namespace nexRemote.Agent.Installer.Win
         private void ShowServerUrlHelp(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(
-                "To jest adres URL hostowanego serwera nex-Remote.  Urządzenie połączy się z tym adresem URL.", 
+                "To jest adres URL hostowanego serwera nexRemote.  Urządzenie połączy się z tym adresem URL.", 
                 "Serwer URL", 
                 MessageBoxButton.OK, 
                 MessageBoxImage.Information);
@@ -55,7 +55,7 @@ namespace nexRemote.Agent.Installer.Win
         private void ShowOrganizationIdHelp(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(
-                "To jest identyfikator Twojej organizacji na serwerze nex-Remote.  Ponieważ jeden serwer nex-Remote może obsłużyć wiele organizacji , " +
+                "To jest identyfikator Twojej organizacji na serwerze nexRemote.  Ponieważ jeden serwer nexRemote może obsłużyć wiele organizacji , " +
                 "ten identyfikator należy podać, aby określić, kto powinien mieć dostęp."
                 + Environment.NewLine + Environment.NewLine +
                 "Możesz znaleźć ten identyfikator na karcie Organizacja w aplikacji internetowej.", 
@@ -65,8 +65,8 @@ namespace nexRemote.Agent.Installer.Win
         }
         private void ShowSupportShortcutHelp(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Jeśli ta opcja zostanie wybrana, instalator utworzy na pulpicie skrót do wsparcia nex-Remote dla tego urządzenia.", 
-                "Skrót nex-Remote",
+            MessageBox.Show("Jeśli ta opcja zostanie wybrana, instalator utworzy na pulpicie skrót do wsparcia nexRemote dla tego urządzenia.", 
+                "Skrót nexRemote",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
         }

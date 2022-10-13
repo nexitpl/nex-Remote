@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Thanks for trying nex-Remote!"
+echo "Thanks for trying nexRemote!"
 echo
 
 Args=( "$@" )
@@ -15,9 +15,9 @@ do
 done
 
 if [ -z "$AppRoot" ]; then
-    read -p "Enter path where the nex-Remote server files should bea installed (typically /var/www/nex-Remote): " AppRoot
+    read -p "Enter path where the nexRemote server files should bea installed (typically /var/www/nexRemote): " AppRoot
     if [ -z "$AppRoot" ]; then
-        AppRoot="/var/www/nex-Remote"
+        AppRoot="/var/www/nexRemote"
     fi
 fi
 
@@ -25,9 +25,9 @@ if [ -z "$HostName" ]; then
     read -p "Enter server host (e.g. https://remote.nex-it.pl): " HostName
 fi
 
-chmod +x "$AppRoot/nex-Remote_Server"
+chmod +x "$AppRoot/nexRemote_Server"
 
-echo "Using $AppRoot as the nex-Remote website's content directory."
+echo "Using $AppRoot as the nexRemote website's content directory."
 
 
 apt-get -y install curl
@@ -59,10 +59,10 @@ apt-get -y install libc6-dev
 apt-get -y install libgdiplus
 
 
-# Set permissions on nex-Remote files.
+# Set permissions on nexRemote files.
 setfacl -R -m u:www-data:rwx $AppRoot
 chown -R "$USER":www-data $AppRoot
-chmod +x "$AppRoot/nex-Remote_Server"
+chmod +x "$AppRoot/nexRemote_Server"
 
 
 # Install Nginx
@@ -135,9 +135,9 @@ server {
     }
 }"
 
-echo "$nginxConfig" > /etc/nginx/sites-available/nex-Remote
+echo "$nginxConfig" > /etc/nginx/sites-available/nexRemote
 
-ln -s /etc/nginx/sites-available/nex-Remote /etc/nginx/sites-enabled/nex-Remote
+ln -s /etc/nginx/sites-available/nexRemote /etc/nginx/sites-enabled/nexRemote
 
 # Test config.
 nginx -t
@@ -151,15 +151,15 @@ nginx -s reload
 # Create service.
 
 serviceConfig="[Unit]
-Description=nex-Remote Server
+Description=nexRemote Server
 
 [Service]
 WorkingDirectory=$AppRoot
-ExecStart=/usr/bin/dotnet $AppRoot/nex-Remote_Server.dll
+ExecStart=/usr/bin/dotnet $AppRoot/nexRemote_Server.dll
 Restart=always
 # Restart service after 10 seconds if the dotnet service crashes:
 RestartSec=10
-SyslogIdentifier=nex-Remote
+SyslogIdentifier=nexRemote
 User=www-data
 Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
@@ -167,13 +167,13 @@ Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 [Install]
 WantedBy=multi-user.target"
 
-echo "$serviceConfig" > /etc/systemd/system/nex-Remote.service
+echo "$serviceConfig" > /etc/systemd/system/nexRemote.service
 
 
 # Enable service.
-systemctl enable nex-Remote.service
+systemctl enable nexRemote.service
 # Start service.
-systemctl restart nex-Remote.service
+systemctl restart nexRemote.service
 
 
 # Install Certbot and get SSL cert.

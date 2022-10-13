@@ -31,7 +31,7 @@ namespace nexRemote.Desktop.Win.Services
         public string GetBaseDirectory()
         {
             var programDataPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            return Directory.CreateDirectory(Path.Combine(programDataPath, "nex-Remote", "Shared")).FullName;
+            return Directory.CreateDirectory(Path.Combine(programDataPath, "nexRemote", "Shared")).FullName;
         }
 
         public void OpenFileTransferWindow(Viewer viewer)

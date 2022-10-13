@@ -20,21 +20,21 @@ RUN \
 
 RUN \
   adduser --disabled-password --gecos '' -u 2001 nexremote && \
-  mkdir -p /var/www/nex-Remote && \
+  mkdir -p /var/www/nexRemote && \
   mkdir /config && \
-  wget -q https://github.com/nexitpl/nex-Remote/releases/latest/download/nex-Remote_Server_Linux-x64.zip && \
-  unzip -o nex-Remote_Server_Linux-x64.zip -d /var/www/nex-Remote && \
-  rm nex-Remote_Server_Linux-x64.zip && \
-  chown -R nexremote:nexremote /var/www/nex-Remote
+  wget -q https://github.com/nexitpl/nexRemote/releases/latest/download/nexRemote_Server_Linux-x64.zip && \
+  unzip -o nexRemote_Server_Linux-x64.zip -d /var/www/nexRemote && \
+  rm nexRemote_Server_Linux-x64.zip && \
+  chown -R nexremote:nexremote /var/www/nexRemote
 
 RUN \
   mkdir -p /nexremote-data && \
-  sed -i 's/DataSource=nex-Remote.db/DataSource=\/nexremote-data\/nex-Remote.db/' /var/www/nex-Remote/appsettings.json && \
+  sed -i 's/DataSource=nexRemote.db/DataSource=\/nexremote-data\/nexRemote.db/' /var/www/nexRemote/appsettings.json && \
   chown -R nexremote:nexremote /nexremote-data
 
 VOLUME "/nexremote-data"
 
-WORKDIR /var/www/nex-Remote
+WORKDIR /var/www/nexRemote
 
 COPY DockerMain.sh /
 

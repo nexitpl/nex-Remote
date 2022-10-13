@@ -22,7 +22,7 @@ namespace nexRemote.Agent.Services
                    changeDescription.Reason == SessionChangeReason.RemoteDisconnect)
                 {
 
-                    foreach (var screenCaster in Process.GetProcessesByName("nex-Remote_Desktop"))
+                    foreach (var screenCaster in Process.GetProcessesByName("nexRemote_Desktop"))
                     {
                         if (screenCaster.SessionId == changeDescription.SessionId)
                         {

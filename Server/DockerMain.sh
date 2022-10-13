@@ -2,11 +2,11 @@
 
 echo "Entered main script."
 
-ServerDir=/var/www/nex-Remote
+ServerDir=/var/www/nexRemote
 nexRemoteData=/nexRemote-data
 
 AppSettingsVolume=/nexRemote-data/appsettings.json
-AppSettingsWww=/var/www/nex-Remote/appsettings.json
+AppSettingsWww=/var/www/nexRemote/appsettings.json
 
 if [ ! -f "$AppSettingsVolume" ]; then
 	echo "Copying appsettings.json to volume."
@@ -19,5 +19,5 @@ fi
 
 ln -s "$AppSettingsVolume" "$AppSettingsWww"
 
-echo "Starting nex-Remote server."
-exec /usr/bin/dotnet /var/www/nex-Remote/nex-Remote_Server.dll
+echo "Starting nexRemote server."
+exec /usr/bin/dotnet /var/www/nexRemote/nexRemote_Server.dll

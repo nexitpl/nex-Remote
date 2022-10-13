@@ -8,7 +8,7 @@ namespace nexRemote.Shared.Utilities
 {
     public class AppConstants
     {
-        public const string DefaultProductName = "nex-Remote";
+        public const string DefaultProductName = "nexRemote";
         public const string DefaultPublisherName = "nex-IT Jakub Potoczny";
         public const long MaxUploadFileSize = 100_000_000;
         public const int RelayCodeLength = 4;

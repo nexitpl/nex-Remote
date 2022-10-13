@@ -47,7 +47,7 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Image Grid.Column="0" Height="45" Width="45"  Margin="0,2,10,2" Source="{Binding Icon}" Grid.RowSpan="3"></Image>
-                    <TextBlock Grid.Column="1" Text="nex-Remote"  Foreground="{Binding TitleForegroundColor}" FontWeight="Bold" FontSize="20" VerticalAlignment="Top" TextAlignment="Center" Margin="0,2,0,0" Grid.RowSpan="2" Grid.Row="1" />
+                    <TextBlock Grid.Column="1" Text="nexRemote"  Foreground="{Binding TitleForegroundColor}" FontWeight="Bold" FontSize="20" VerticalAlignment="Top" TextAlignment="Center" Margin="0,2,0,0" Grid.RowSpan="2" Grid.Row="1" />
                     <Button Grid.Column="2" Style="{StaticResource TitlebarButton}" Click="MinimizeButton_Click" Content="____" Foreground="White" Background="{Binding TitleBackgroundColor}" HorizontalAlignment="Center" Margin="0,0,0,10" Grid.RowSpan="2" Grid.Row="1" OpacityMask="Black" BorderBrush="#FFFFFEFE"/>
                     <Button Grid.Column="3" Style="{StaticResource TitlebarButton}" Click="CloseButton_Click" Content="X" Foreground="White" Background="{Binding TitleBackgroundColor}" HorizontalAlignment="Center" Margin="5,0,5,10" Grid.RowSpan="2" Grid.Row="1" OpacityMask="Black" BorderBrush="White" />
                 </Grid>

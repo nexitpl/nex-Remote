@@ -1,6 +1,6 @@
 ﻿@page "/about"
 
-<h3>O Systemie nex-Remote</h3>
+<h3>O Systemie nexRemote</h3>
 
 <p>
     WWW: <a href="https://nex-it.pl">https://nex-it.pl</a>
@@ -12,9 +12,9 @@
     Licencje Open Source: <a href="/credits">Link</a>
 </p>
 <p>
-    Version: @if (System.IO.File.Exists("nex-Remote_Server.dll"))
+    Version: @if (System.IO.File.Exists("nexRemote_Server.dll"))
     {
-        <span>@System.Diagnostics.FileVersionInfo.GetVersionInfo("nex-Remote_Server.dll").FileVersion.ToString()</span>
+        <span>@System.Diagnostics.FileVersionInfo.GetVersionInfo("nexRemote_Server.dll").FileVersion.ToString()</span>
     }
     else
     {

@@ -149,7 +149,7 @@ namespace nexRemote.Server.Areas.Identity.Pages.Account.Manage
         {
             return string.Format(
                 AuthenticatorUriFormat,
-                _urlEncoder.Encode("nex-Remote.Server"),
+                _urlEncoder.Encode("nexRemote.Server"),
                 _urlEncoder.Encode(email),
                 unformattedKey);
         }

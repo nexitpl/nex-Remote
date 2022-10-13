@@ -1,4 +1,4 @@
-# nex-Remote
+# nexRemote
 
 
 

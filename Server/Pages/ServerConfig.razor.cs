@@ -318,7 +318,7 @@ namespace nexRemote.Server.Pages
         {
             await SaveInputToAppSettings();
 
-            var success = await EmailSender.SendEmailAsync(User.Email, "nex-Remote Test Email", "Congratulations! Your SMTP settings are working!", User.OrganizationID);
+            var success = await EmailSender.SendEmailAsync(User.Email, "nexRemote Test Email", "Congratulations! Your SMTP settings are working!", User.OrganizationID);
             if (success)
             {
                 ToastService.ShowToast($"Test email sent to {User.Email}.  Check your inbox (or spam folder).");

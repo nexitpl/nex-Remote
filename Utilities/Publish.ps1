@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-   Publishes the nex-Remote clients.
+   Publishes the nexRemote clients.
 .DESCRIPTION
-   Publishes the nex-Remote clients.
+   Publishes the nexRemote clients.
    To deploy the server, supply the following arguments: -rid win10-x64 -outdir path\to\dir -hostname https://mysite.mydomain.com
 .COPYRIGHT
    Copyright 2022 nex-IT Uslugi Informatyczne Jakub Potoczny.  All rights reserved.
@@ -147,7 +147,7 @@ dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion -p:Publ
 &"$MSBuildPath" "$Root\Desktop.Win" -t:Restore -t:Publish -p:PublishProfile="ClickOnce-x64.pubxml" -p:Configuration=Release -p:Platform=x64 -p:ApplicationVersion=$CurrentVersion -p:Version=$CurrentVersion -p:FileVersion=$CurrentVersion -p:PublishDir="$Root\Server\wwwroot\Content\Win-x64\ClickOnce\"
 
 if ($SignAssemblies) {
-    &"$Root\Utilities\signtool.exe" sign /f "$CertificatePath" /p $CertificatePassword /t http://timestamp.digicert.com "$Root\Server\wwwroot\Content\Win-x64\nex-Remote_Desktop.exe"
+    &"$Root\Utilities\signtool.exe" sign /f "$CertificatePath" /p $CertificatePassword /t http://timestamp.digicert.com "$Root\Server\wwwroot\Content\Win-x64\nexRemote_Desktop.exe"
 }
 
 
@@ -156,38 +156,38 @@ dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion -p:Publ
 &"$MSBuildPath" "$Root\Desktop.Win" -t:Restore -t:Publish -p:PublishProfile="ClickOnce-x86.pubxml" -p:Configuration=Release -p:Platform=x86 -p:ApplicationVersion=$CurrentVersion -p:Version=$CurrentVersion -p:FileVersion=$CurrentVersion -p:PublishDir="$Root\Server\wwwroot\Content\Win-x86\ClickOnce\"
 
 if ($SignAssemblies) {
-    &"$Root\Utilities\signtool.exe" sign /f "$CertificatePath" /p $CertificatePassword /t http://timestamp.digicert.com "$Root\Server\wwwroot\Content\Win-x86\nex-Remote_Desktop.exe"
+    &"$Root\Utilities\signtool.exe" sign /f "$CertificatePath" /p $CertificatePassword /t http://timestamp.digicert.com "$Root\Server\wwwroot\Content\Win-x86\nexRemote_Desktop.exe"
 }
 
 # Build installer.
 &"$MSBuildPath" "$Root\Agent.Installer.Win" /t:Restore 
 &"$MSBuildPath" "$Root\Agent.Installer.Win" /t:Build /p:Configuration=Release /p:Platform=AnyCPU /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion
-Copy-Item -Path "$Root\Agent.Installer.Win\bin\Release\nex-Remote_Installer.exe" -Destination "$Root\Server\wwwroot\Content\nex-Remote_Installer.exe" -Force
+Copy-Item -Path "$Root\Agent.Installer.Win\bin\Release\nexRemote_Installer.exe" -Destination "$Root\Server\wwwroot\Content\nexRemote_Installer.exe" -Force
 if ($SignAssemblies) {
-    &"$Root\Utilities\signtool.exe" sign /f "$CertificatePath" /p $CertificatePassword /t http://timestamp.digicert.com "$Root\Server\wwwroot\Content\nex-Remote_Installer.exe"
+    &"$Root\Utilities\signtool.exe" sign /f "$CertificatePath" /p $CertificatePassword /t http://timestamp.digicert.com "$Root\Server\wwwroot\Content\nexRemote_Installer.exe"
 }
 
 # Compress Core clients.
 $PublishDir =  "$Root\Agent\bin\Release\net6.0\win10-x64\publish"
-Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\nex-Remote-Win10-x64.zip" -Force
-while ((Test-Path -Path "$PublishDir\nex-Remote-Win10-x64.zip") -eq $false){
+Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\nexRemote-Win10-x64.zip" -Force
+while ((Test-Path -Path "$PublishDir\nexRemote-Win10-x64.zip") -eq $false){
     Start-Sleep -Seconds 1
 }
-Move-Item -Path "$PublishDir\nex-Remote-Win10-x64.zip" -Destination "$Root\Server\wwwroot\Content\nex-Remote-Win10-x64.zip" -Force
+Move-Item -Path "$PublishDir\nexRemote-Win10-x64.zip" -Destination "$Root\Server\wwwroot\Content\nexRemote-Win10-x64.zip" -Force
 
 $PublishDir =  "$Root\Agent\bin\Release\net6.0\win10-x86\publish"
-Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\nex-Remote-Win10-x86.zip" -Force
-while ((Test-Path -Path "$PublishDir\nex-Remote-Win10-x86.zip") -eq $false){
+Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\nexRemote-Win10-x86.zip" -Force
+while ((Test-Path -Path "$PublishDir\nexRemote-Win10-x86.zip") -eq $false){
     Start-Sleep -Seconds 1
 }
-Move-Item -Path "$PublishDir\nex-Remote-Win10-x86.zip" -Destination "$Root\Server\wwwroot\Content\nex-Remote-Win10-x86.zip" -Force
+Move-Item -Path "$PublishDir\nexRemote-Win10-x86.zip" -Destination "$Root\Server\wwwroot\Content\nexRemote-Win10-x86.zip" -Force
 
 $PublishDir =  "$Root\Agent\bin\Release\net6.0\linux-x64\publish"
-Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\nex-Remote-Linux.zip" -Force
-while ((Test-Path -Path "$PublishDir\nex-Remote-Linux.zip") -eq $false){
+Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\nexRemote-Linux.zip" -Force
+while ((Test-Path -Path "$PublishDir\nexRemote-Linux.zip") -eq $false){
     Start-Sleep -Seconds 1
 }
-Move-Item -Path "$PublishDir\nex-Remote-Linux.zip" -Destination "$Root\Server\wwwroot\Content\nex-Remote-Linux.zip" -Force
+Move-Item -Path "$PublishDir\nexRemote-Linux.zip" -Destination "$Root\Server\wwwroot\Content\nexRemote-Linux.zip" -Force
 
 
 

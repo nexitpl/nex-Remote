@@ -295,12 +295,12 @@ namespace nexRemote.Server.API
                 var newInvite = DataService.AddInvite(orgID, invite);
 
                 var inviteURL = $"{Request.Scheme}://{Request.Host}/Invite?id={newInvite.ID}";
-                var emailResult = await EmailSender.SendEmailAsync(invite.InvitedUser, "Zaproszenie do nex-Remote",
-                            $@"<img src='{Request.Scheme}://{Request.Host}/images/nex-Remote_Logo.png'/>
+                var emailResult = await EmailSender.SendEmailAsync(invite.InvitedUser, "Zaproszenie do nexRemote",
+                            $@"<img src='{Request.Scheme}://{Request.Host}/images/nexRemote_Logo.png'/>
                             <br><br>
                             Witaj!
                             <br><br>
-                            Zostałeś zaproszony do systemu pomocy zdalnej nex-Remote by nex-IT Jakub Potoczny.
+                            Zostałeś zaproszony do systemu pomocy zdalnej nexRemote by nex-IT Jakub Potoczny.
                             <br><br>
                             Możesz dołaczyć poprzez <a href='{HtmlEncoder.Default.Encode(inviteURL)}'>kliknij tutaj</a>.",
                             orgID);

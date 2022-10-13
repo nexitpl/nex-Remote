@@ -73,9 +73,9 @@ namespace nexRemote.Agent.Services
         {
             try
             {
-                if (File.Exists("nex-Remote_Agent.dll"))
+                if (File.Exists("nexRemote_Agent.dll"))
                 {
-                    return FileVersionInfo.GetVersionInfo("nex-Remote_Agent.dll").FileVersion.ToString().Trim();
+                    return FileVersionInfo.GetVersionInfo("nexRemote_Agent.dll").FileVersion.ToString().Trim();
                 }
             }
             catch (Exception ex)

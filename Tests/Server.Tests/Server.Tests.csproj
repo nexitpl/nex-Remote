@@ -7,7 +7,7 @@
 
     <RootNamespace>nexRemote.Server.Tests</RootNamespace>
 
-    <AssemblyName>nex-Remote.Server.Tests</AssemblyName>
+    <AssemblyName>nexRemote.Server.Tests</AssemblyName>
 
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>

@@ -35,7 +35,7 @@ namespace nexRemote.Tests.LoadTester
                 {
                     Console.WriteLine("Command line arguments must include all of the following: ");
                     Console.WriteLine();
-                    Console.WriteLine("-serverurl [full URL of the nex-Remote server]");
+                    Console.WriteLine("-serverurl [full URL of the nexRemote server]");
                     Console.WriteLine();
                     Console.WriteLine("-organizationid [organization ID that the device will belong to]");
                     Console.WriteLine();

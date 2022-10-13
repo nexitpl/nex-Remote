@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-		<AssemblyName>nex-Remote_Shared</AssemblyName>
+		<AssemblyName>nexRemote_Shared</AssemblyName>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<RootNamespace>nexRemote.Shared</RootNamespace>
 		<PlatformTarget>AnyCPU</PlatformTarget>

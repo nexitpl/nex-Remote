@@ -6,14 +6,14 @@
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Copyright>Copyright ©  2022 nex-IT Jakub Potoczny</Copyright>
-		<Description>nex-Remote - System pomocy zdalnej opracowany przez nex-IT Jakub Potoczny</Description>
+		<Description>nexRemote - System pomocy zdalnej opracowany przez nex-IT Jakub Potoczny</Description>
 		<Authors>Jakub Potoczny</Authors>
-		<Product>nex-Remote Agent</Product>
+		<Product>nexRemote Agent</Product>
 		<Company>nex-IT Jakub Potoczny</Company>
 		<AssemblyVersion>2.0.0.0</AssemblyVersion>
 		<PackageProjectUrl>https://nex-it.pl</PackageProjectUrl>
 		<Platforms>AnyCPU;x86;x64</Platforms>
-		<AssemblyName>nex-Remote_Agent</AssemblyName>
+		<AssemblyName>nexRemote_Agent</AssemblyName>
 		<RootNamespace>nexRemote.Agent</RootNamespace>
 		<ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
 		<PlatformTarget>AnyCPU</PlatformTarget>

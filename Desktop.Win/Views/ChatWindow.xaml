@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:nexRemote.Desktop.Win.Views"
         xmlns:ViewModels="clr-namespace:nexRemote.Desktop.Win.ViewModels"
-        xmlns:Models="clr-namespace:nexRemote.Shared.Models;assembly=nex-Remote_Shared"
+        xmlns:Models="clr-namespace:nexRemote.Shared.Models;assembly=nexRemote_Shared"
         mc:Ignorable="d"
         WindowStyle="None"
         ResizeMode="CanResizeWithGrip"
@@ -42,7 +42,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" Height="50" Width="50"  Margin="0,0,10,0" Source="{Binding Icon}"></Image>
-                <TextBlock Grid.Column="1" Foreground="#FF009FE3" FontWeight="Bold" FontSize="20" VerticalAlignment="Center" TextAlignment="Center"><Run Language="pl-pl" Text="nex-Remote Czat"/></TextBlock>
+                <TextBlock Grid.Column="1" Foreground="#FF009FE3" FontWeight="Bold" FontSize="20" VerticalAlignment="Center" TextAlignment="Center"><Run Language="pl-pl" Text="nexRemote Czat"/></TextBlock>
                 <Button Grid.Column="2" Style="{StaticResource TitlebarButton}" Click="MinimizeButton_Click" Content="____" Foreground="{Binding TitleButtonForegroundColor}" IsCancel="True" Background="Black" OpacityMask="Black"/>
                 <Button Grid.Column="3" Style="{StaticResource TitlebarButton}" Click="CloseButton_Click" Content="X" Foreground="{Binding TitleButtonForegroundColor}" Background="Black" OpacityMask="Black" />
             </Grid>

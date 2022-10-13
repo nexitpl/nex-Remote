@@ -41,12 +41,12 @@ namespace nexRemote.Desktop.XPlat.ViewModels
             var initialDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
             if (!Directory.Exists(initialDir))
             {
-                initialDir = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "nex-Remote_Shared")).FullName;
+                initialDir = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "nexRemote_Shared")).FullName;
             }
 
             var ofd = new OpenFileDialog
             {
-                Title = "Transfer Plików via nex-Remote",
+                Title = "Transfer Plików via nexRemote",
                 AllowMultiple = true,
                 Directory = initialDir
             };

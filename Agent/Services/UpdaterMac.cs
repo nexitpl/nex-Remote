@@ -72,7 +72,7 @@ namespace nexRemote.Agent.Services
                 var connectionInfo = _configService.GetConnectionInfo();
                 var serverUrl = _configService.GetConnectionInfo().Host;
 
-                var fileUrl = serverUrl + $"/Content/nex-Remote-MacOS-{_achitecture}.zip";
+                var fileUrl = serverUrl + $"/Content/nexRemote-MacOS-{_achitecture}.zip";
 
                 using var httpClient = _httpClientFactory.CreateClient();
                 using var request = new HttpRequestMessage(HttpMethod.Head, fileUrl);
@@ -127,9 +127,9 @@ namespace nexRemote.Agent.Services
                 Logger.Write("Service Updater: Downloading install package.");
 
                 var downloadId = Guid.NewGuid().ToString();
-                var zipPath = Path.Combine(Path.GetTempPath(), "nex-RemoteUpdate.zip");
+                var zipPath = Path.Combine(Path.GetTempPath(), "nexRemoteUpdate.zip");
 
-                var installerPath = Path.Combine(Path.GetTempPath(), "nex-RemoteUpdate.sh");
+                var installerPath = Path.Combine(Path.GetTempPath(), "nexRemoteUpdate.sh");
 
                 await _updateDownloader.DownloadFile(
                        $"{serverUrl}/API/ClientDownloads/{connectionInfo.OrganizationID}/MacOSInstaller-{_achitecture}",

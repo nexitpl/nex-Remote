@@ -8,7 +8,7 @@ namespace nexRemote.Agent.Installer.Win.Models
 {
     public class BrandingInfo
     {
-        public string Product { get; set; } = "nex-Remote";
+        public string Product { get; set; } = "nexRemote";
 
         public string Icon { get; set; }
 

@@ -32,7 +32,7 @@ namespace nexRemote.Desktop.XPlat.Services
                 return desktopDir;
             }
 
-            return Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "nex-Remote_Shared")).FullName;
+            return Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "nexRemote_Shared")).FullName;
         }
 
         public void OpenFileTransferWindow(Viewer viewer)

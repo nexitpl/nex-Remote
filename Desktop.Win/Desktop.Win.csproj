@@ -5,15 +5,15 @@
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
-		<AssemblyName>nex-Remote_Desktop</AssemblyName>
+		<AssemblyName>nexRemote_Desktop</AssemblyName>
 		<RootNamespace>nexRemote.Desktop.Win</RootNamespace>
 		<ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
-		<Description>nex-Remote Client</Description>
+		<Description>nexRemote Client</Description>
 		<Copyright>Copyright ©  2022 nex-IT Jakub Potoczny</Copyright>
-		<PackageId>nex-Remote Desktop</PackageId>
+		<PackageId>nexRemote Desktop</PackageId>
 		<Authors>Jakub Potoczny</Authors>
 		<Company>nex-IT Jakub Potoczny</Company>
-		<Product>nex-Remote Desktop</Product>
+		<Product>nexRemote Desktop</Product>
 		<PackageProjectUrl>https://nex-it.pl</PackageProjectUrl>
 		<Platforms>AnyCPU;x86;x64</Platforms>
 		<StartupObject>nexRemote.Desktop.Win.App</StartupObject>
@@ -35,7 +35,7 @@
 
 	<ItemGroup>
 		<None Remove="Assets\favicon.ico" />
-		<None Remove="Assets\nex-Remote_Icon.png" />
+		<None Remove="Assets\nexRemote_Icon.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -53,7 +53,7 @@
 
 	<ItemGroup>
 		<Resource Include="Assets\favicon.ico" />
-		<EmbeddedResource Include="Assets\nex-Remote_Icon.png" />
+		<EmbeddedResource Include="Assets\nexRemote_Icon.png" />
 	</ItemGroup>
 
 	<ItemGroup>

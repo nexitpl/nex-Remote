@@ -69,7 +69,7 @@ export class DtoMessageHandler {
         ReceiveFile(file);
     }
     HandleScreenData(screenDataDto: ScreenDataDto) {
-        document.title = `${screenDataDto.MachineName} - nex-Remote Session`;
+        document.title = `${screenDataDto.MachineName} - nexRemote Session`;
         UI.ToggleConnectUI(false);
         UI.SetScreenSize(screenDataDto.ScreenWidth, screenDataDto.ScreenHeight);
         UI.UpdateDisplays(screenDataDto.SelectedDisplay, screenDataDto.DisplayNames);

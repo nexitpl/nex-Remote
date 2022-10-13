@@ -10,7 +10,7 @@ namespace nexRemote.Desktop.Win.Services
 
     public class ConfigServiceWin : IConfigService
     {
-        private static readonly string _configFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "nex-Remote");
+        private static readonly string _configFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "nexRemote");
         private static readonly string _configFile = Path.Combine(_configFolder, "Config.json");
 
         public DesktopAppConfig GetConfig()

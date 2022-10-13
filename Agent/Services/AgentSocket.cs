@@ -407,7 +407,7 @@ namespace nexRemote.Agent.Services
                     }
 
                     Logger.Write($"Przesyłanie pliku rozpoczęte przez {requesterID}.");
-                    var sharedFilePath = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "nex-RemoteSharedFiles")).FullName;
+                    var sharedFilePath = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "nexRemoteSharedFiles")).FullName;
 
                     foreach (var fileID in fileIDs)
                     {

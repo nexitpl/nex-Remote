@@ -11,7 +11,7 @@
 	RewriteRule /(.*)           http://localhost:5000/$1 [P,L]
 
 	ProxyPreserveHost On
-	#Proxy Requests to nex-Remote Server
+	#Proxy Requests to nexRemote Server
 	<LocationMatch "/">
 		ProxyPass http://localhost:5000/ 
 		ProxyPassReverse http://localhost:5000/

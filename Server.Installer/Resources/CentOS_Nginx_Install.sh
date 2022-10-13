@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Thanks for trying nex-Remote!"
+echo "Thanks for trying nexRemote!"
 echo
 
 Args=( "$@" )
@@ -15,9 +15,9 @@ do
 done
 
 if [ -z "$AppRoot" ]; then
-    read -p "Enter path where the nex-Remote server files should be installed (typically /var/www/nex-Remote): " AppRoot
+    read -p "Enter path where the nexRemote server files should be installed (typically /var/www/nexRemote): " AppRoot
     if [ -z "$AppRoot" ]; then
-        AppRoot="/var/www/nex-Remote"
+        AppRoot="/var/www/nexRemote"
     fi
 fi
 
@@ -25,7 +25,7 @@ if [ -z "$HostName" ]; then
     read -p "Enter server host (e.g. https://remote.nex-it.pl): " HostName
 fi
 
-echo "Using $AppRoot as the nex-Remote website's content directory."
+echo "Using $AppRoot as the nexRemote website's content directory."
 
 yum update
 yum -y install curl
@@ -50,10 +50,10 @@ yum -y install libc6-dev
 yum -y install libgdiplus
 
 
-# Set permissions on nex-Remote files.
+# Set permissions on nexRemote files.
 setfacl -R -m u:apache:rwx $AppRoot
 chown -R apache:apache $AppRoot
-chmod +x "$AppRoot/nex-Remote_Server"
+chmod +x "$AppRoot/nexRemote_Server"
 
 
 # Install Nginx
@@ -124,11 +124,11 @@ nginx -s reload
 # Create service.
 
 serviceConfig="[Unit]
-Description=nex-Remote Server
+Description=nexRemote Server
 
 [Service]
 WorkingDirectory=$AppRoot
-ExecStart=/usr/bin/dotnet $AppRoot/nex-Remote_Server.dll
+ExecStart=/usr/bin/dotnet $AppRoot/nexRemote_Server.dll
 Restart=always
 # Restart service after 10 seconds if the dotnet service crashes:
 RestartSec=10
@@ -139,13 +139,13 @@ Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 [Install]
 WantedBy=multi-user.target"
 
-echo "$serviceConfig" > /etc/systemd/system/nex-Remote.service
+echo "$serviceConfig" > /etc/systemd/system/nexRemote.service
 
 
 # Enable service.
-systemctl enable nex-Remote.service
+systemctl enable nexRemote.service
 # Start service.
-systemctl start nex-Remote.service
+systemctl start nexRemote.service
 
 firewall-cmd --permanent --zone=public --add-service=http
 firewall-cmd --permanent --zone=public --add-service=https

@@ -20,19 +20,19 @@ RUN \
 
 
 RUN \
-  mkdir -p /var/www/nex-Remote && \
+  mkdir -p /var/www/nexRemote && \
   mkdir /config && \
-  wget -q https://github.com/nexitpl/nex-Remote/releases/latest/download/nex-Remote_Server_Linux-x64.zip && \
-  unzip -o nex-Remote_Server_Linux-x64.zip -d /var/www/nex-Remote && \
-  rm nex-Remote_Server_Linux-x64.zip
+  wget -q https://github.com/nexitpl/nexRemote/releases/latest/download/nexRemote_Server_Linux-x64.zip && \
+  unzip -o nexRemote_Server_Linux-x64.zip -d /var/www/nexRemote && \
+  rm nexRemote_Server_Linux-x64.zip
 
 RUN \
   mkdir -p /nexRemote-data && \
-  sed -i 's/DataSource=nexRemote.db/DataSource=\/nexRemote-data\/nexRemote.db/' /var/www/nex-Remote/appsettings.json
+  sed -i 's/DataSource=nexRemote.db/DataSource=\/nexRemote-data\/nexRemote.db/' /var/www/nexRemote/appsettings.json
 
 VOLUME "/nexRemote-data"
 
-WORKDIR /var/www/nex-Remote
+WORKDIR /var/www/nexRemote
 
 COPY DockerMain.sh /
 

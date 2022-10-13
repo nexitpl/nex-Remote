@@ -37,7 +37,7 @@ namespace nexRemote.Desktop.XPlat.ViewModels
             {
                 var brandingInfo = DeviceInitService?.BrandingInfo ?? new Shared.Models.BrandingInfo();
 
-                ProductName = "nex-Remote";
+                ProductName = "nexRemote";
 
                 if (!string.IsNullOrWhiteSpace(brandingInfo?.Product))
                 {
@@ -66,7 +66,7 @@ namespace nexRemote.Desktop.XPlat.ViewModels
                 }
                 else
                 {
-                    using var imageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("nexRemote.Desktop.XPlat.Assets.nex-Remote_Icon.png");
+                    using var imageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("nexRemote.Desktop.XPlat.Assets.nexRemote_Icon.png");
                     Icon = new Bitmap(imageStream);
                 }
 

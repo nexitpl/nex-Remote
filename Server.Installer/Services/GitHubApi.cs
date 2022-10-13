@@ -31,7 +31,7 @@ namespace Server.Installer.Services
         {
             _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromHours(8);
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "nex-Remote Server Installer");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "nexRemote Server Installer");
         }
 
         public void Dispose()
@@ -76,7 +76,7 @@ namespace Server.Installer.Services
             try
             {
                 var message = GetHttpRequestMessage(HttpMethod.Get, 
-                    $"{_apiHost}/repos/{cliParams.GitHubUsername}/nex-Remote/actions/artifacts",
+                    $"{_apiHost}/repos/{cliParams.GitHubUsername}/nexRemote/actions/artifacts",
                     cliParams);
 
                 var response = await _httpClient.SendAsync(message);
@@ -113,7 +113,7 @@ namespace Server.Installer.Services
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<GitHubReleasesResponsePayload>("https://api.github.com/repos/nexitpl/nex-Remote/releases/latest");
+                var response = await _httpClient.GetFromJsonAsync<GitHubReleasesResponsePayload>("https://api.github.com/repos/nexitpl/nexRemote/releases/latest");
                 return response.tag_name;
             }
             catch (Exception ex)
@@ -134,7 +134,7 @@ namespace Server.Installer.Services
 
                 var message = GetHttpRequestMessage(
                     HttpMethod.Post, 
-                    $"{_apiHost}/repos/{cliParams.GitHubUsername}/nex-Remote/actions/workflows/build.yml/dispatches",
+                    $"{_apiHost}/repos/{cliParams.GitHubUsername}/nexRemote/actions/workflows/build.yml/dispatches",
                     cliParams);
 
                 var rid = EnvironmentHelper.IsLinux ?

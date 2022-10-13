@@ -5,11 +5,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("nex-Remote Instalator")]
-[assembly: AssemblyDescription("Instalator nex-Remote, system zdalnej pomocy nex-IT Jakub Potoczny.")]
+[assembly: AssemblyTitle("nexRemote Instalator")]
+[assembly: AssemblyDescription("Instalator nexRemote, system zdalnej pomocy nex-IT Jakub Potoczny.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("nex-IT Jakub Potoczny")]
-[assembly: AssemblyProduct("nex-Remote Instalator")]
+[assembly: AssemblyProduct("nexRemote Instalator")]
 [assembly: AssemblyCopyright("nex-IT Jakub Potoczny 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
