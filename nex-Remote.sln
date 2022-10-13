@@ -18,10 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{D96B47F6-EF3E-4AF6-A1BE-006D531DDBA4}"
 	ProjectSection(SolutionItems) = preProject
-		Assets\nex-Remote_Icon.ico = Assets\nex-Remote_Icon.ico
-		Assets\nex-Remote_Icon.pdn = Assets\nex-Remote_Icon.pdn
-		Assets\nex-Remote_Icon.png = Assets\nex-Remote_Icon.png
-		Assets\nex-Remote_Logo.png = Assets\nex-Remote_Logo.png
+		Assets\nexRemote_Icon.ico = Assets\nexRemote_Icon.ico
+		Assets\nexRemote_Icon.pdn = Assets\nexRemote_Icon.pdn
+		Assets\nexRemote_Icon.png = Assets\nexRemote_Icon.png
+		Assets\nexRemote_Logo.png = Assets\nexRemote_Logo.png
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Desktop.Core", "Desktop.Core\Desktop.Core.csproj", "{B04A1728-2E87-491E-BC7F-F575A1754DEF}"

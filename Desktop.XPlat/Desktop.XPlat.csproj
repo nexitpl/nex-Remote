@@ -45,15 +45,6 @@
     <None Remove="Models\**" />
   </ItemGroup>
   <ItemGroup>
-    <AvaloniaResource Remove="Assets\nexRemote_Icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Assets\nexRemote_Icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Assets\nexRemote_Icon.png" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.10.6" />
     <PackageReference Include="Avalonia.Desktop" Version="0.10.6" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.6" />

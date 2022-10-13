@@ -208,7 +208,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.manifest" />
-    <None Include="nex-Remote.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -221,7 +220,7 @@
     <Resource Include="Assets\favicon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Assets\nex-Remote_Icon.png" />
+    <EmbeddedResource Include="Assets\nexRemote_Icon.png" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="IWshRuntimeLibrary">

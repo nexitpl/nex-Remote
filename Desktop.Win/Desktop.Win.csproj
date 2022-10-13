@@ -35,7 +35,6 @@
 
 	<ItemGroup>
 		<None Remove="Assets\favicon.ico" />
-		<None Remove="Assets\nexRemote_Icon.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -53,7 +52,6 @@
 
 	<ItemGroup>
 		<Resource Include="Assets\favicon.ico" />
-		<EmbeddedResource Include="Assets\nexRemote_Icon.png" />
 	</ItemGroup>
 
 	<ItemGroup>

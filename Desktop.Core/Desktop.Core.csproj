@@ -35,14 +35,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Assets\nexRemote_Icon.png" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<EmbeddedResource Include="Assets\nexRemote_Icon.png" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.6" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="6.0.6" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
@@ -58,10 +50,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Shared\Shared.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Resource Include="Assets\nexRemote_Icon.png" />
 	</ItemGroup>
 
 </Project>
