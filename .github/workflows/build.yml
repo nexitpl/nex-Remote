@@ -81,12 +81,12 @@ jobs:
           
           Write-Host "Publishing agent with version $CurrentVersion"
           dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime osx-x64 --configuration Release --output "./Agent/bin/publish/" "./Agent/"
-          Compress-Archive -Path "./Agent/bin/publish/*" -DestinationPath "./Agent/bin/nex-Remote-MacOS-x64.zip" -Force
+          Compress-Archive -Path "./Agent/bin/publish/*" -DestinationPath "./Agent/bin/nexRemote-MacOS-x64.zip" -Force
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:
-          path: ./Agent/bin/nex-Remote-MacOS-x64.zip
+          path: ./Agent/bin/nexRemote-MacOS-x64.zip
           name: Mac-Agent-x64
      
   build-windows:
