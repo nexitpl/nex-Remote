@@ -96,7 +96,7 @@ jobs:
     needs: build-mac
 
     env:
-      Solution_Name: nex-Remote.sln      
+      Solution_Name: nexRemote.sln      
       Configuration: Release
       PfxBase64: ${{ secrets.BASE64_ENCODED_PFX }}
       PfxKey: ${{ secrets.PFX_KEY }}
@@ -109,7 +109,7 @@ jobs:
       with:
         # Comment out the below 'repository' line if you want to build from
         # your fork instead of the author's.
-        repository: nexitpl/nex-Remote
+        repository: nexitpl/nexRemote
         fetch-depth: 0
 
     # Test the Server URL to make sure it's valid
